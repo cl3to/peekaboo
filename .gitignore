@@ -55,3 +55,6 @@ dkms.conf
 *.sql
 *.sqlite
 *.db
+
+# Vscode
+.vscode/
