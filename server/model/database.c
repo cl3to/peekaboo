@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "profile.h"
+#include "database.h"
 
 // Open the database connection
 sqlite3 *open_db() {
