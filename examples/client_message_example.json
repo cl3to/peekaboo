@@ -1,0 +1,7 @@
+{
+  "operation_code": 200,
+  "params_length": 1,
+  "params": {
+    "year_of_degree": 2020
+  }
+}

@@ -58,3 +58,6 @@ dkms.conf
 
 # Vscode
 .vscode/
+
+# Binary files folder
+bin/*

@@ -7,8 +7,8 @@ CFLAGS = -Wall -Werror
 # Build client code
 
 # Build the client
-client: main.o stub.o
-	$(CC) $(CFLAGS) -o client main.o stub.o
+client: clean main.o stub.o
+	$(CC) $(CFLAGS) -o ../bin/client main.o stub.o
 
 # Build the client object file
 main.o: main.c
@@ -20,4 +20,4 @@ stub.o:
 
 # remove object files and executable when user executes "make clean"
 clean:
-	rm *.o client
+	rm -f *.o ../bin/client
