@@ -27,6 +27,6 @@ char* profiles_serializer(Profile *profiles);
 // Serialization of one profile filteres by e-mail
 // Returns the profiles in json format
 // Returns -1 if error occurred 
-char* profile_by_email_serializer(char *email);
+char* profile_by_email_serializer(Profile *profile, char *email);
 
 #endif 
