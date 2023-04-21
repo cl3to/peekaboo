@@ -12,7 +12,7 @@ main.o: main.c
 orchestrator.o:
 	$(CC) -c orchestrator/tcp_orchestrator.c -o orchestrator.o 
 
-serializer.o:
+serializer.o: ../lib/jsmn.h
 	$(CC) -c serializers/user_serializer.c -o serializer.o
 
 profile_to_json.o:
