@@ -1,125 +1,9 @@
+#include <stdio.h>
+
 #include "../model/profile.h"
 #include "user_serializer.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include "../../utils/profile_to_json.h"
 
-// TODO: Extract the json functions from a propietary file > utils
-// TODO: Add \n at the end of a complete profile, after "}"
-char* profiles_to_json(struct profile* profiles, int profiles_amount) {
-    const int BUFFER_SIZE = 1024;
-    char buffer[BUFFER_SIZE];
-
-    // open the JSON array
-    snprintf(buffer, BUFFER_SIZE, "[");
-
-    // iterate over the profiles
-    for (int i = 0; i < profiles_amount; i++) {
-        // add the profile as a JSON object
-        snprintf(buffer + strlen(buffer), BUFFER_SIZE - strlen(buffer),
-                 "{"
-                 "\"email\":\"%s\","
-                 "\"name\":\"%s\","
-                 "\"last_name\":\"%s\","
-                 "\"city\":\"%s\","
-                 "\"academic_degree\":\"%s\","
-                 "\"year_of_degree\":%d,"
-                 "\"habilities\":\"%s\","
-                 "\"image\":\"%s\""
-                 "}%s\n",
-                 profiles[i].email, profiles[i].name, profiles[i].last_name,
-                 profiles[i].city, profiles[i].academic_degree,
-                 profiles[i].year_of_degree, profiles[i].habilities,
-                 profiles[i].image, i < profiles_amount - 1 ? "," : "");
-
-    }
-
-    // close the JSON array
-    snprintf(buffer + strlen(buffer), BUFFER_SIZE - strlen(buffer), "]\n");
-
-    // allocate memory for the result string
-    char* result = (char*) malloc(strlen(buffer) + 1);
-    if (result == NULL) {
-        return NULL;
-    }
-
-    // copy the result string into the allocated memory
-    strncpy(result, buffer, strlen(buffer) + 1);
-
-    return result;
-}
-
-char* simple_profiles_to_json(struct profile* profiles, int profiles_amount) {
-    const int BUFFER_SIZE = 1024;
-    char buffer[BUFFER_SIZE];
-
-    // open the JSON array
-    snprintf(buffer, BUFFER_SIZE, "[");
-
-    // iterate over the profiles
-    for (int i = 0; i < profiles_amount; i++) {
-        // add the profile as a JSON object
-        snprintf(buffer + strlen(buffer), BUFFER_SIZE - strlen(buffer),
-                 "{"
-                 "\"email\": \"%s\","
-                 "\"name\": \"%s\","
-                 "\"last_name\": \"%s\","
-                 "}%s\n",
-                 profiles[i].email, profiles[i].name, profiles[i].last_name,
-                i < profiles_amount - 1 ? "," : "");
-
-    }
-
-    // close the JSON array
-    snprintf(buffer + strlen(buffer), BUFFER_SIZE - strlen(buffer), "]\n");
-
-    // allocate memory for the result string
-    char* result = (char*) malloc(strlen(buffer) + 1);
-    if (result == NULL) {
-        return NULL;
-    }
-
-    // copy the result string into the allocated memory
-    strncpy(result, buffer, strlen(buffer) + 1);
-
-    return result;
-}
-
-char* academic_profiles_to_json(struct profile* profiles, int profiles_amount) {
-    const int BUFFER_SIZE = 1024;
-    char buffer[BUFFER_SIZE];
-
-    // open the JSON array
-    snprintf(buffer, BUFFER_SIZE, "[");
-
-    // iterate over the profiles
-    for (int i = 0; i < profiles_amount; i++) {
-        // add the profile as a JprofilesSON object
-        snprintf(buffer + strlen(buffer), BUFFER_SIZE - strlen(buffer),
-                 "{"
-                 "\"email\": \"%s\","
-                 "\"name\": \"%s\","
-                 "\"last_name\": \"%s\","
-                 "\"academic_degree\": \"%s\","
-                 "}%s\n",
-                 profiles[i].email, profiles[i].name, profiles[i].last_name,
-                 profiles[i].academic_degree, i < profiles_amount - 1 ? "," : "");
-
-    }
-
-    // close the JSON array
-    snprintf(buffer + strlen(buffer), BUFFER_SIZE - strlen(buffer), "]\n");
-
-    // allocate memory for the result string
-    char* result = (char*) malloc(strlen(buffer) + 1);
-    if (result == NULL) {
-        return NULL;
-    }
-
-    // copy the result string into the allocated memory
-    strncpy(result, buffer, strlen(buffer) + 1);
-
-    return result;
-}
 
 char* profiles_by_academic_degree_serializer(Profile *profiles, char *academic_degree){
 
@@ -135,7 +19,7 @@ char* profiles_by_academic_degree_serializer(Profile *profiles, char *academic_d
       return -1;
     }
 
-    char* json_profiles = simple_profiles_to_json(profiles, profiles_amount);
+    char* json_profiles = profiles_to_json(profiles, profiles_amount, LIST_BY_COURSE);
     printf("-->SERVER SIDE:\n %s\n", json_profiles);
 
     return json_profiles;
@@ -155,7 +39,7 @@ char* profiles_by_habilities_serializer(Profile *profiles, char *habilities){
       return -1;
     }
 
-    char* json_profiles = simple_profiles_to_json(profiles, profiles_amount);
+    char* json_profiles = profiles_to_json(profiles, profiles_amount, LIST_BY_SKILL);
     printf("-->SERVER SIDE:\n %s\n", json_profiles);
     
     return json_profiles;
@@ -175,7 +59,7 @@ char* profiles_by_year_of_degree_serializer(Profile *profiles, int year_of_degre
       return -1;
     }
 
-    char* json_profiles = academic_profiles_to_json(profiles, profiles_amount);
+    char* json_profiles = profiles_to_json(profiles, profiles_amount, LIST_BY_YEAR);
     printf("-->SERVER SIDE:\n %s\n", json_profiles);
 
     return json_profiles;
@@ -190,7 +74,7 @@ char* profiles_serializer(Profile *profiles){
       return -1;
     }
 
-  char* json_profiles = profiles_to_json(profiles, profiles_amount);
+  char* json_profiles = profiles_to_json(profiles, profiles_amount, LIST_ALL_PROFILES);
   printf("-->SERVER SIDE:\n %s\n", json_profiles);
 
   return json_profiles;
@@ -209,7 +93,7 @@ char* profile_by_email_serializer(char *email){
       return -1;
     }
 
-    char* json_profiles = profiles_to_json(profiles, profiles_amount);
+    char* json_profiles = profiles_to_json(profiles, profiles_amount, GET_PROFILE_BY_EMAIL);
     printf("-->SERVER SIDE:\n %s\n", json_profiles);
     
     return json_profiles;

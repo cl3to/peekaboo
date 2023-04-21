@@ -12,7 +12,8 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-// #include "model/profile.h"
+#include "../model/profile.h"
+#include "../serializers/user_serializer.h"
 
 #define PORT "4527" // the port client will be connecting to
 

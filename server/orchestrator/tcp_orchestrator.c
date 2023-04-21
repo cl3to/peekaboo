@@ -1,6 +1,4 @@
 #include "orchestrator.h"
-#include "../model/profile.h"
-#include "../serializers/user_serializer.h"
 
 void sigchld_handler(int s)
 {
