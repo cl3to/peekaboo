@@ -1,4 +1,6 @@
 #include "orchestrator.h"
+#include "../model/profile.h"
+#include "../serializers/user_serializer.h"
 
 void sigchld_handler(int s)
 {
@@ -23,6 +25,10 @@ void *get_in_addr(struct sockaddr *sa)
 
 int connection_loop(void)
 {
+
+    const int BUFFER_SIZE = sizeof(Profile) * 10;
+    Profile *profiles  = (Profile *) malloc(BUFFER_SIZE);
+
     int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
     struct addrinfo hints, *servinfo, *p;
     struct sockaddr_storage their_addr; // connector's address information
@@ -104,11 +110,16 @@ int connection_loop(void)
             s, sizeof s);
         printf("server: got connection from %s\n", s);
 
+
         if (!fork()) { // this is the child process
+            char* data = profiles_serializer(profiles);
+
+            int data_len = strlen(data);
             close(sockfd); // child doesn't need the listener
-            if (send(new_fd, "Hello, world!", 13, 0) == -1)
+            if (send(new_fd, data, data_len, 0) == -1)
                 perror("send");
             close(new_fd);
+            free(data);
             exit(0);
         }
         close(new_fd);  // parent doesn't need this

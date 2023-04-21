@@ -15,12 +15,12 @@ sqlite3 *open_db() {
 
 // Close the database connection
 // returns 0 if the database was closed successfully
-// returns 1 if the database was not closed successfully
+// returns -1 if the database was not closed successfully
 int close_db(sqlite3 *db) {
     int rc = sqlite3_close(db);
     if (rc != SQLITE_OK) {
         fprintf(stderr, "Can't close database: %s\n", sqlite3_errmsg(db));
-        return 1;
+        return -1;
     }
     return 0;
 }
@@ -91,7 +91,7 @@ int store_profile(Profile *profile) {
     close_db(db);
 
     if (rc != SQLITE_OK) {
-        return 1;
+        return -1;
     }
 
     return 0;
@@ -107,7 +107,7 @@ int get_profiles_by_academic_degree(Profile *profiles, char *academic_degree) {
     if (rc != SQLITE_OK) {
         fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
-        return 1;
+        return -1;
     }
 
     // Prepare the SQL statement
@@ -117,7 +117,7 @@ int get_profiles_by_academic_degree(Profile *profiles, char *academic_degree) {
         fprintf(stderr, "Cannot prepare statement: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
         sqlite3_free(sql);
-        return 1;
+        return -1;
     }
 
     // Execute the statement
@@ -137,9 +137,9 @@ int get_profiles_by_academic_degree(Profile *profiles, char *academic_degree) {
     sqlite3_close(db);
 
     if (i > 0) {
-        return 0; // profiles were retrieved successfully
-    } else {
-        return 1; // no profiles were found
+        return i; // returns the number of profiles retrieved
+     } else {
+        return -1; // no profiles were found
     }
 }
 
@@ -153,7 +153,7 @@ int get_profiles_by_habilities(Profile *profiles, char *habilities) {
     if (rc != SQLITE_OK) {
         fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
-        return 1;
+        return -1;
     }
 
     // Prepare the SQL statement
@@ -163,7 +163,7 @@ int get_profiles_by_habilities(Profile *profiles, char *habilities) {
         fprintf(stderr, "Cannot prepare statement: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
         sqlite3_free(sql);
-        return 1;
+        return -1;
     }
 
     // Execute the statement
@@ -183,9 +183,9 @@ int get_profiles_by_habilities(Profile *profiles, char *habilities) {
     sqlite3_close(db);
 
     if (i > 0) {
-        return 0; // profiles were retrieved successfully
+        return i; // returns the number of profiles retrieved
     } else {
-        return 1; // no profiles were found
+        return -1; // no profiles were found
     }
 }
 
@@ -200,7 +200,7 @@ int get_profiles_by_year_of_degree(Profile *profiles, int year_of_degree) {
     if (rc != SQLITE_OK) {
         fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
-        return 1;
+        return -1;
     }
 
     sprintf(sql, "SELECT email, name, last_name, academic_degree FROM profiles WHERE year_of_degree = %d", year_of_degree);
@@ -210,7 +210,7 @@ int get_profiles_by_year_of_degree(Profile *profiles, int year_of_degree) {
         fprintf(stderr, "Failed to execute query: %s\n", sqlite3_errmsg(db));
         sqlite3_free(err_msg);
         sqlite3_close(db);
-        return 1;
+        return -1;
     }
 
     for (int i = 0; i < rows; i++) {
@@ -224,7 +224,7 @@ int get_profiles_by_year_of_degree(Profile *profiles, int year_of_degree) {
 
     sqlite3_free_table(result);
     sqlite3_close(db);
-    return 0;
+    return rows; // returns the number of profiles retrieved
 }
 
 int get_profiles(Profile *profiles) {
@@ -235,14 +235,14 @@ int get_profiles(Profile *profiles) {
     rc = sqlite3_open("profiles.db", &db);
     if (rc != SQLITE_OK) {
         sqlite3_close(db);
-        return 1;
+        return -1;
     }
 
     rc = sqlite3_prepare_v2(db, "SELECT * FROM profiles", -1, &stmt, NULL);
     if (rc != SQLITE_OK) {
         sqlite3_finalize(stmt);
         sqlite3_close(db);
-        return 1;
+        return -1;
     }
 
     int i = 0;
@@ -260,7 +260,7 @@ int get_profiles(Profile *profiles) {
 
     sqlite3_finalize(stmt);
     sqlite3_close(db);
-    return 0;
+    return i; // returns the number of profiles retrieved
 }
 
 int get_profile_by_email(Profile *profile, char *email) {
@@ -274,7 +274,7 @@ int get_profile_by_email(Profile *profile, char *email) {
     if (rc != SQLITE_OK) {
         fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
-        return 1;
+        return -1;
     }
 
     sprintf(sql, "SELECT * FROM profiles WHERE email = '%s'", email);
@@ -284,13 +284,13 @@ int get_profile_by_email(Profile *profile, char *email) {
         fprintf(stderr, "Failed to execute query: %s\n", sqlite3_errmsg(db));
         sqlite3_free(err_msg);
         sqlite3_close(db);
-        return 1;
+        return -1;
     }
 
     if (rows == 0) {
         sqlite3_free_table(result);
         sqlite3_close(db);
-        return 1; // No profile found
+        return -1; // No profile found
     }
 
     strcpy(profile->email, result[cols]);
@@ -304,7 +304,7 @@ int get_profile_by_email(Profile *profile, char *email) {
 
     sqlite3_free_table(result);
     sqlite3_close(db);
-    return 0;
+    return rows; // returns the number of profiles retrieved
 }
 
 int delete_profile_by_email(char *email) {
@@ -315,7 +315,7 @@ int delete_profile_by_email(char *email) {
     if (rc != SQLITE_OK) {
         fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
-        return 1;
+        return -1;
     }
 
     char *sql = sqlite3_mprintf("DELETE FROM profiles WHERE email='%q'", email);
@@ -325,7 +325,7 @@ int delete_profile_by_email(char *email) {
         fprintf(stderr, "Failed to delete profile: %s\n", err_msg);
         sqlite3_free(err_msg);
         sqlite3_close(db);
-        return 1;
+        return -1;
     }
 
     sqlite3_close(db);

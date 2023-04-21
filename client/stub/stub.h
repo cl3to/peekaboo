@@ -12,7 +12,7 @@
 
 #define PORT "4527" // the port client will be connecting to 
 
-#define MAXDATASIZE 100 // max number of bytes we can get at once 
+#define MAXDATASIZE 9360 // max number of bytes we can get at once 
 
 // Handle client connections using TCP or UDP sockets
 // Each stub manages its own connections in its way

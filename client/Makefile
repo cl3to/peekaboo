@@ -7,7 +7,7 @@ CFLAGS = -Wall -Werror
 # Build client code
 
 # Build the client
-client: main.o stub.o
+client: clean main.o stub.o
 	$(CC) $(CFLAGS) -o client main.o stub.o
 
 # Build the client object file
