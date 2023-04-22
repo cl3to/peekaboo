@@ -12,6 +12,8 @@ typedef enum {
     GET_PROFILE_BY_EMAIL, 
     // Used to download a profile's image based on its identifier (UDP only).
     DOWNLOAD_PROFILE_IMAGE, 
+    
+    // ADMIN ACTIONS
     // Used to remove a profile based on its email (admin only).
     REMOVE_PROFILE_BY_EMAIL, 
     // Used to create a new profile using an email as an identifier (admin only).
@@ -19,7 +21,7 @@ typedef enum {
     // Used to indicate that the user wishes to log in (admin only).
     LOGIN, 
     // Used to indicate that the user wishes to exit the program (admin only).
-    LOGOUT0 
+    LOGOUT 
 } OperationCode;
 
 

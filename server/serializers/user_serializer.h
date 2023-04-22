@@ -1,5 +1,5 @@
-#ifndef PROFILES_USER_H
-#define PROFILES_USER_H
+#ifndef USER_SERIALIZER_H
+#define USER_SERIALIZER_H
 
 #include <stdlib.h>
 #include <string.h>
