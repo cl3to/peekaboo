@@ -20,10 +20,10 @@ int generate_session_token(){
 }
 
 int validate_session_token(char *session_token){
-  if(strcmp(session_token, expected_session_token) == 0){
+  if(session_token!= NULL && strcmp(session_token, expected_session_token) == 0){
     return 0;
   }
-  printf("Invalid session token\n");
+  printf("Invalid session token.\n");
   return -1;
 }
 
@@ -36,10 +36,8 @@ char* validate_password(char *password) {
       0x0a, 0x32, 0x6e, 0xa8
     };
 
-    // Hash buffer
     unsigned char hash[SHA_DIGEST_LENGTH];
 
-    // Generate SHA1 hash
     SHA1(password, strlen(password), hash);
 
     // Compare generated hash with expected hash
@@ -72,8 +70,6 @@ char* login_with_password(char *password){
 
 int logout(char *session_token){
   if (validate_session_token(session_token)==0){
-    // ? Varificar com o Jhon qual a melhor opção para resetar o token ? 
-    // generate_session_token();
     memset(expected_session_token, '\0', SESSION_TOKEN_LENGTH);
     return 0;
   }
