@@ -14,6 +14,7 @@
 
 #include "../model/profile.h"
 #include "../serializers/user_serializer.h"
+#include "../serializers/admin_serializer.h"
 
 #define PORT "4527" // the port client will be connecting to
 

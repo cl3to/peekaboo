@@ -4,7 +4,6 @@
 #include "user_serializer.h"
 #include "../../utils/profile_to_json.h"
 
-
 char* profiles_by_academic_degree_serializer(Profile *profiles, char *academic_degree){
 
     if (academic_degree == NULL || strlen(academic_degree) == 0){
