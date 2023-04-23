@@ -19,7 +19,6 @@ char* profiles_by_academic_degree_serializer(Profile *profiles, char *academic_d
     }
 
     char* json_profiles = profiles_to_json(profiles, profiles_amount, LIST_BY_COURSE);
-    printf("-->SERVER SIDE:\n %s\n", json_profiles);
 
     return json_profiles;
   }
@@ -39,7 +38,6 @@ char* profiles_by_habilities_serializer(Profile *profiles, char *habilities){
     }
 
     char* json_profiles = profiles_to_json(profiles, profiles_amount, LIST_BY_SKILL);
-    printf("-->SERVER SIDE:\n %s\n", json_profiles);
     
     return json_profiles;
   }
@@ -59,7 +57,6 @@ char* profiles_by_year_of_degree_serializer(Profile *profiles, int year_of_degre
     }
 
     char* json_profiles = profiles_to_json(profiles, profiles_amount, LIST_BY_YEAR);
-    printf("-->SERVER SIDE:\n %s\n", json_profiles);
 
     return json_profiles;
   }
@@ -74,7 +71,6 @@ char* profiles_serializer(Profile *profiles){
     }
 
   char* json_profiles = profiles_to_json(profiles, profiles_amount, LIST_ALL_PROFILES);
-  printf("-->SERVER SIDE:\n %s\n", json_profiles);
 
   return json_profiles;
 }
@@ -91,7 +87,6 @@ char* profile_by_email_serializer(Profile *profile, char *email){
     }
 
     char* json_profiles = profiles_to_json(profile, profiles_amount, GET_PROFILE_BY_EMAIL);
-    printf("-->SERVER SIDE:\n %s\n", json_profiles);
     
     return json_profiles;
   }

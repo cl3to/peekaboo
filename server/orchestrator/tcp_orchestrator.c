@@ -10,7 +10,6 @@ void sigchld_handler(int s)
     errno = saved_errno;
 }
 
-
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
 {
@@ -21,10 +20,32 @@ void *get_in_addr(struct sockaddr *sa)
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
+// Sent all data in more than one dataframe if necessary
+int send_all_data(int s, char *buf, int *len)
+{
+    int total = 0;        // how many bytes we've sent
+    int bytesleft = *len; // how many we have left to send
+    int n;
+
+    while(total < *len) {
+        n = send(s, buf+total, bytesleft, 0);
+        if (n == -1) { break; }
+        total += n;
+        bytesleft -= n;
+    }
+
+    *len = total; // return number actually sent here
+
+    return n==-1?-1:0; // return -1 on failure, 0 on success
+}
+
 int connection_loop(void)
 {
 
     const int BUFFER_SIZE = sizeof(Profile) * 10;
+    char request[MAXDATASIZE+1];
+    char* response;
+    int request_len, response_len ;
     Profile *profiles  = (Profile *) malloc(BUFFER_SIZE);
 
     int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
@@ -91,10 +112,6 @@ int connection_loop(void)
 
     printf("server: waiting for connections...\n");
     
-    // print the IP address of the server
-    // printf("server: IP address: %d\n", AI_PASSIVE);
-    
-
     while(1) {  // main accept() loop
         sin_size = sizeof their_addr;
         new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
@@ -110,14 +127,30 @@ int connection_loop(void)
 
 
         if (!fork()) { // this is the child process
-            char* data = profiles_serializer(profiles);
-
-            int data_len = strlen(data);
             close(sockfd); // child doesn't need the listener
-            if (send(new_fd, data, data_len, 0) == -1)
-                perror("send");
+
+            if ((request_len = recv(new_fd, request, MAXDATASIZE, 0)) == -1) {
+                perror("recv");
+                exit(1);
+            }
+            request[request_len] = '\0';
+
+            printf("SERVER SIDE --> receve: %d bytes\n", request_len);
+            printf("SERVER SIDE --> request msg: '%s'\n",request);
+
+            response = general_serializer(profiles, request);
+            response_len = strlen(response);
+            
+            printf("SERVER SIDE --> response: %d bytes\n", response_len);        
+            printf("SERVER SIDE --> response msg: '%s'\n", response);
+            
+            if (send_all_data(new_fd, response, &response_len) == -1) {
+                perror("sendall");
+                printf("We only sent %d bytes because of the error!\n", response_len);
+            }
+
+            free(response);
             close(new_fd);
-            free(data);
             exit(0);
         }
         close(new_fd);  // parent doesn't need this

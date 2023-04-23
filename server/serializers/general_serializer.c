@@ -98,7 +98,5 @@ char *general_serializer(Profile *profiles, char *request_body)
   // Free the memory allocated for the JSON
   cJSON_Delete(json);
 
-  //TODO: Remove debug print
-  printf("RESPOSNE|SERVER SIDE --->: %s\n", response);
   return response;
 }

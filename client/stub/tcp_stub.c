@@ -76,10 +76,10 @@ int make_request(char *request)
         perror("recv");
         exit(1);
     }
-    printf("numbytes: %d\n", numbytes);
+    printf("CLIENT SIDE --> receve bytes: %d\n", numbytes);
 
     buf[numbytes] = '\0';
-    printf("\nclient: received '%s'\n", buf);
+    printf("CLIENT SIDE --> received response: '%s'\n",buf);
 
     close(sockfd);
 

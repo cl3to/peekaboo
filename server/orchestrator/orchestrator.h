@@ -16,7 +16,7 @@
 #include "../serializers/general_serializer.h"
 
 #define PORT "4527" // the port client will be connecting to
-
+#define MAXDATASIZE 9360 
 #define BACKLOG 10 // how many pending connections queue will hold
 
 // Handle connections using TCP or UDP sockets
