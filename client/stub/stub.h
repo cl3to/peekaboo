@@ -1,3 +1,6 @@
+#ifndef STUB_H
+#define STUB_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -14,7 +17,8 @@
 
 #define MAXDATASIZE 9360 // max number of bytes we can get at once 
 
-// Handle client connections using TCP or UDP sockets
-// Each stub manages its own connections in its way
-// Returns 0 if everything went well, 1 otherwise
-int client_loop(int argc, char *argv[]);
+// Make a request to the server and return the response
+
+int make_request(char *request);
+
+#endif
