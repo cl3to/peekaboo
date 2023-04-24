@@ -42,7 +42,7 @@ int send_all_data(int s, char *buf, int *len)
 int connection_loop(void)
 {
 
-    const int BUFFER_SIZE = sizeof(Profile) * 10;
+    const int BUFFER_SIZE = sizeof(Profile) * 20;
     char request[MAXDATASIZE+1];
     char* response;
     int request_len, response_len ;
@@ -137,7 +137,7 @@ int connection_loop(void)
 
             printf("SERVER SIDE --> receve: %d bytes\n", request_len);
             printf("SERVER SIDE --> request msg: '%s'\n",request);
-
+            
             response = general_serializer(profiles, request);
             response_len = strlen(response);
             

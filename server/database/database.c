@@ -36,9 +36,9 @@ void create_profiles_table() {
                             "name VARCHAR(65), "
                             "last_name VARCHAR(65), "
                             "city VARCHAR(100), "
-                            "academic_degree VARCHAR(100), "
+                            "course VARCHAR(100), "
                             "year_of_degree INTEGER, "
-                            "habilities VARCHAR(300), "
+                            "skills VARCHAR(300), "
                             "image VARCHAR(200)"
                             ");",
                             0, 0, &err_msg);
@@ -59,7 +59,7 @@ int store_profile(Profile *profile) {
 
     // Construct the SQL statement to insert a new profile
     sql = sqlite3_mprintf(
-        "INSERT INTO profiles (email, name, last_name, city, academic_degree, year_of_degree, habilities, image) "
+        "INSERT INTO profiles (email, name, last_name, city, course, year_of_degree, skills, image) "
         "VALUES ('%q', '%q', '%q', '%q', '%q', %d, '%q', '%q');",
         profile->email, profile->name, profile->last_name, profile->city, profile->academic_degree, 
         profile->year_of_degree, profile->habilities, profile->image);
@@ -90,7 +90,7 @@ int get_profiles_by_academic_degree(Profile *profiles, char *academic_degree) {
     }
 
     // Prepare the SQL statement
-    char *sql = sqlite3_mprintf("SELECT email, name, last_name FROM profiles WHERE academic_degree='%q'", academic_degree);
+    char *sql = sqlite3_mprintf("SELECT email, name, last_name FROM profiles WHERE course='%q'", academic_degree);
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (rc != SQLITE_OK) {
         fprintf(stderr, "Cannot prepare statement: %s\n", sqlite3_errmsg(db));
@@ -136,7 +136,7 @@ int get_profiles_by_habilities(Profile *profiles, char *habilities) {
     }
 
     // Prepare the SQL statement
-    char *sql = sqlite3_mprintf("SELECT email, name, last_name FROM profiles WHERE habilities LIKE '%%%q%%'", habilities);
+    char *sql = sqlite3_mprintf("SELECT email, name, last_name FROM profiles WHERE skills LIKE '%%%q%%'", habilities);
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (rc != SQLITE_OK) {
         fprintf(stderr, "Cannot prepare statement: %s\n", sqlite3_errmsg(db));
@@ -182,7 +182,7 @@ int get_profiles_by_year_of_degree(Profile *profiles, int year_of_degree) {
         return -1;
     }
 
-    sprintf(sql, "SELECT email, name, last_name, academic_degree FROM profiles WHERE year_of_degree = %d", year_of_degree);
+    sprintf(sql, "SELECT email, name, last_name, course FROM profiles WHERE year_of_degree = %d", year_of_degree);
 
     rc = sqlite3_get_table(db, sql, &result, &rows, &cols, &err_msg);
     if (rc != SQLITE_OK) {
@@ -233,7 +233,11 @@ int get_profiles(Profile *profiles) {
         strcpy(profiles[i].academic_degree, (const char *)sqlite3_column_text(stmt, 4));
         profiles[i].year_of_degree = sqlite3_column_int(stmt, 5);
         strcpy(profiles[i].habilities, (const char *)sqlite3_column_text(stmt, 6));
-        strcpy(profiles[i].image, (const char *)sqlite3_column_text(stmt, 7));
+
+        char *image_path = (const char *)sqlite3_column_text(stmt, 7);
+        if(image_path != NULL){
+            strcpy(profiles[i].image, image_path);
+        }
         i++;
     }
 
@@ -279,7 +283,11 @@ int get_profile_by_email(Profile *profile, char *email) {
     strcpy(profile->academic_degree, result[cols+4]);
     profile->year_of_degree = atoi(result[cols+5]);
     strcpy(profile->habilities, result[cols+6]);
-    strcpy(profile->image, result[cols+7]);
+
+    char * image_path = result[cols+7];
+    if (image_path != NULL){
+        strcpy(profile->image, result[cols+7]);
+    }
 
     sqlite3_free_table(result);
     sqlite3_close(db);

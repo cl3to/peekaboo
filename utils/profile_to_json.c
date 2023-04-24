@@ -4,7 +4,7 @@
 #include "profile_to_json.h"
 
 char* make_complete_profile(struct profile* profile) {
-    const int LINE_BUFFER_SIZE = 256;
+    const int LINE_BUFFER_SIZE = 1024;
     char buffer[LINE_BUFFER_SIZE];
 
     snprintf(buffer, LINE_BUFFER_SIZE, "{"
