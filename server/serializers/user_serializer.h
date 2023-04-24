@@ -4,15 +4,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../../utils/email_validator.h"
+
 // Serialization of the profiles filtred by the academic degree 
 // Returns the profiles in json format
 // Returns -1 if error occurred
-char* profiles_by_academic_degree_serializer(Profile *profiles, char *academic_degree);
+char* profiles_by_course_serializer(Profile *profiles, char *course);
 
-// Serialization of the profiles filtred by the habilities 
+// Serialization of the profiles filtred by the skills 
 // Returns the profiles in json format
 // Returns -1 if error occurred
-char* profiles_by_habilities_serializer(Profile *profiles, char *habilities);
+char* profiles_by_skills_serializer(Profile *profiles, char *skills);
 
 // Serialization of the profiles filtred by the year of degree 
 // Returns the profiles in json format

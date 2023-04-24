@@ -1,40 +1,23 @@
-#include <regex.h>
+#include "email_validator.h"
 
-int is_email_valid(char *email)
+int check_email_format(char *email)
 {
   regex_t regex;
-  int reti;
-  char msgbuf[100];
+  int is_valid;
 
-  reti = regcomp(&regex, "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}", 0);
+  // Creation of email regex
+  is_valid = regcomp(&regex, "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}", REG_EXTENDED);
 
-  if (reti)
+  if (is_valid != 0)
   {
-    fprintf(stderr, "Could not compile regex\n");
-    exit(1);
+    printf("Regex compilation failed\n");
+    return -1;
   }
 
-  reti = regexec(&regex, email, 0, NULL, 0);
-  if (!reti)
-  {
-    printf("Valid email\n");
-  }
-  else if (reti == REG_NOMATCH)
-  {
-    printf("Invalid email\n");
-  }
-  else
-  {
-    regerror(reti, &regex, msgbuf, sizeof(msgbuf));
-    fprintf(stderr, "Regex match failed: %s\n", msgbuf);
-    exit(1);
-  }
+  // Comparing pattern with email string
+  is_valid = regexec(&regex, email, 0, NULL, 0);
 
   regfree(&regex);
-  return 0;
-}
 
-int main()
-{
-  is_email_valid("banana@email.com");
+  return is_valid;
 }

@@ -12,14 +12,14 @@ char* make_complete_profile(struct profile* profile) {
              "\"name\":\"%s\","
              "\"last_name\":\"%s\","
              "\"city\":\"%s\","
-             "\"academic_degree\":\"%s\","
+             "\"course\":\"%s\","
              "\"year_of_degree\":%d,"
-             "\"habilities\":\"%s\","
+             "\"skills\":\"%s\","
              "\"image\":\"%s\""
              "}",
              profile->email, profile->name, profile->last_name,
-             profile->city, profile->academic_degree,
-             profile->year_of_degree, profile->habilities,
+             profile->city, profile->course,
+             profile->year_of_degree, profile->skills,
              profile->image);
 
     return strdup(buffer);
@@ -47,10 +47,10 @@ char* make_academic_profile(struct profile* profile) {
              "\"email\":\"%s\","
              "\"name\":\"%s\","
              "\"last_name\":\"%s\","
-             "\"academic_degree\":\"%s\""
+             "\"course\":\"%s\""
              "}",
              profile->email, profile->name, profile->last_name,
-             profile->academic_degree);
+             profile->course);
 
     return strdup(buffer);
 }

@@ -18,14 +18,14 @@ int store_profile(Profile *profile);
 // The information retrived is the name, last name and email
 // Returns the number of profiles were retrieved successfully
 // Returns -1 if the profiles were not retrieved
-int get_profiles_by_academic_degree(Profile *profiles, char *academic_degree);
+int get_profiles_by_course(Profile *profiles, char *course);
 
 
-// List all the profiles from the database that have the habilities
+// List all the profiles from the database that have the skills
 // The information retrived is the name, last name and email
 // Returns the number of profiles were retrieved successfully
 // Returns -1 if the profiles were not retrieved
-int get_profiles_by_habilities(Profile *profiles, char *habilities);
+int get_profiles_by_skill(Profile *profiles, char *skills);
 
 
 // List all the profiles from the database that have the year of degree
