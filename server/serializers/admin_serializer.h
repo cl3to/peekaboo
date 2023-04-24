@@ -33,16 +33,16 @@ char* login_with_password(char *password);
 // Logout from the system's administrative area
 // Returns 0 if the session was finished
 // Returns -1 if there was an error in the session finalization
-int logout(char *session_token);
+char* logout(char *session_token);
 
 // Create a new profile 
 // Returns 0 if the profile was created
 // Returns -1 if there was an error
-int create_new_profile(char *session_token, char *email, char *name, char *last_name, char *city, char *academic_degree, int year_of_degree, char *habilities);
+char* create_new_profile(char *session_token, char *email, char *name, char *last_name, char *city, char *academic_degree, int year_of_degree, char *habilities);
 
 // Remove a profile filter from email
 // Returns 0 if the profile was removed
 // Returns -1 if there was an error
-int remove_profile_by_email(char *session_token, char *email);
+char* remove_profile_by_email(char *session_token, char *email);
 
 #endif 
