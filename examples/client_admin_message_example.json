@@ -1,0 +1,8 @@
+{
+  "operation_code": 7,
+  "params_length": 2,
+  "params": {
+    "session_token": "asdnfouiasdfuaspd",
+    "email": "person@example.com"
+  }
+}

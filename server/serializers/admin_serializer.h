@@ -7,8 +7,8 @@
 #include <time.h>
 #include <openssl/sha.h>
 
-#include "../model/profile.h"
-#include "../../utils/operation_codes.h"
+#include "../database/database.h"
+#include "../../utils/constants.h" 
 
 // Generate a token to the current serssion
 // Returns 1 after instantiation the new token

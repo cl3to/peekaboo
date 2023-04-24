@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "../model/profile.h"
+#include "../database/database.h"
 #include "user_serializer.h"
 #include "../../utils/profile_to_json.h"
 

@@ -3,8 +3,6 @@
 
 #include "profile_to_json.h"
 
-#define BUFFER_SIZE 1024
-
 char* make_complete_profile(struct profile* profile) {
     const int LINE_BUFFER_SIZE = 256;
     char buffer[LINE_BUFFER_SIZE];
@@ -59,10 +57,10 @@ char* make_academic_profile(struct profile* profile) {
 
 char* profiles_to_json(struct profile* profiles, int profiles_amount, OperationCode operation_code) {
 
-    char buffer[BUFFER_SIZE];
+    char buffer[MAXDATASIZE];
 
     // open the JSON array
-    snprintf(buffer, BUFFER_SIZE, "{"
+    snprintf(buffer, MAXDATASIZE, "{"
         "\"operation_code\": %d,"
         "\"data_length\": %d,"
         "\"data\": [",
@@ -90,13 +88,13 @@ char* profiles_to_json(struct profile* profiles, int profiles_amount, OperationC
         }
         
         // add the profile as a JSON object
-        snprintf(buffer + strlen(buffer), BUFFER_SIZE - strlen(buffer), "%s%s", profile_json, i < profiles_amount - 1 ? "," : "");
+        snprintf(buffer + strlen(buffer), MAXDATASIZE - strlen(buffer), "%s%s", profile_json, i < profiles_amount - 1 ? "," : "");
 
         free(profile_json);
     }
 
     // close the JSON array
-    snprintf(buffer + strlen(buffer), BUFFER_SIZE - strlen(buffer), "]}");
+    snprintf(buffer + strlen(buffer), MAXDATASIZE - strlen(buffer), "]}");
 
     return strdup(buffer);
 }

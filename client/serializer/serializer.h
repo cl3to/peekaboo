@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../utils/operation_codes.h"
+#include "../../utils/constants.h"
 
 #define MAX_MESSAGE_SIZE 1024
 #define MAX_PARAMETERS_SIZE 256

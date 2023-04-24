@@ -4,7 +4,7 @@
 #include "../serializer/serializer.h"
 #include "../stub/stub.h"
 
-#include "../../utils/operation_codes.h"
+#include "../../utils/constants.h"
 
 void peekaboo_tui(int argc, char **argv)
 {
@@ -49,7 +49,7 @@ void peekaboo_tui(int argc, char **argv)
 void user_mode_tui()
 {
     OperationCode operation_code;
-    char *serialized_operation;
+    char *serialized_operation = NULL;
 
     printf("Você está no modo usuário!\n");
 
@@ -115,11 +115,14 @@ void user_mode_tui()
             break;
         }
 
-        printf("Serialized operation: %s\n", serialized_operation);
+        if (serialized_operation)
+        {
+            make_request(serialized_operation);
+            free(serialized_operation);
+            serialized_operation = NULL;
+        }
 
     } while (operation_code != 0);
-
-    free(serialized_operation);
 }
 
 void admin_mode_tui()

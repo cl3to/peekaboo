@@ -39,12 +39,12 @@ char *general_serializer(Profile *profiles, char *request_body)
   case LIST_BY_COURSE:
     response = profiles_by_academic_degree_serializer(
         profiles,
-        cJSON_GetObjectItemCaseSensitive(params_items, "academic_degree")->valuestring);
+        cJSON_GetObjectItemCaseSensitive(params_items, "course")->valuestring);
     break;
   case LIST_BY_SKILL:
     response = profiles_by_habilities_serializer(
         profiles,
-        cJSON_GetObjectItemCaseSensitive(params_items, "habilities")->valuestring);
+        cJSON_GetObjectItemCaseSensitive(params_items, "skills")->valuestring);
     break;
   case LIST_BY_YEAR:
     response = profiles_by_year_of_degree_serializer(
@@ -77,9 +77,9 @@ char *general_serializer(Profile *profiles, char *request_body)
         cJSON_GetObjectItemCaseSensitive(params_items, "name")->valuestring,
         cJSON_GetObjectItemCaseSensitive(params_items, "last_name")->valuestring,
         cJSON_GetObjectItemCaseSensitive(params_items, "city")->valuestring,
-        cJSON_GetObjectItemCaseSensitive(params_items, "academic_degree")->valuestring,
+        cJSON_GetObjectItemCaseSensitive(params_items, "course")->valuestring,
         cJSON_GetObjectItemCaseSensitive(params_items, "year_of_degree")->valueint,
-        cJSON_GetObjectItemCaseSensitive(params_items, "habilities")->valuestring);
+        cJSON_GetObjectItemCaseSensitive(params_items, "skills")->valuestring);
     break;
   case LOGIN:
     response = login_with_password(

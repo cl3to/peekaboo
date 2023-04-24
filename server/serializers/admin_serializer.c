@@ -2,7 +2,6 @@
 
 
 #define BUFFER_SIZE 512
-#define SESSION_TOKEN_LENGTH 42
 
 char expected_session_token[SESSION_TOKEN_LENGTH+1];
 

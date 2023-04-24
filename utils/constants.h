@@ -1,5 +1,5 @@
-#ifndef OPERATION_CODES_H
-#define OPERATION_CODES_H
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
 
 // Enumeration of possible actions that can be performed by the user.
 typedef enum OperationCode
@@ -30,5 +30,19 @@ typedef enum OperationCode
     // 10- Used to indicate that the user wishes to exit the program (admin only).
     LOGOUT
 } OperationCode;
+
+// Enumeration of possible status of the server response.
+typedef enum StatusCode
+{
+    // Status code for successful action on the server
+    SUCCESS = 200,
+    // Status code for failure action on the server
+    FAILURE = 400
+} StatusCode;
+
+// Some constants
+#define MAXDATASIZE 64 * 1024   // max number of bytes we can get at once
+#define PORT "4527"             // Peekaboo port number
+#define SESSION_TOKEN_LENGTH 42 // Session token length
 
 #endif
