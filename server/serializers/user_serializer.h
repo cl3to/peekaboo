@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../../utils/email_validator.h"
+
 // Serialization of the profiles filtred by the academic degree 
 // Returns the profiles in json format
 // Returns -1 if error occurred

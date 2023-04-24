@@ -100,7 +100,10 @@ int create_new_profile(char *session_token, char *email, char *name, char *last_
 int remove_profile_by_email(char *session_token, char *email){
   if (validate_session_token(session_token)==0){
     
-    //TODO: Apply regex on the email
+    if (check_email_format(email) != 0) {
+      printf("Invalid e-mail! Please, provide a valid e-mail.\n");
+      return -1;
+    }
     
     if(delete_profile_by_email(email) == 0){
       return 0;

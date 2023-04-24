@@ -8,7 +8,8 @@
 #include <openssl/sha.h>
 
 #include "../database/database.h"
-#include "../../utils/constants.h" 
+#include "../../utils/constants.h"
+#include "../../utils/email_validator.h"
 
 // Generate a token to the current serssion
 // Returns 1 after instantiation the new token

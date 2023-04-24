@@ -3,8 +3,8 @@
 CC = gcc
 CFLAGS = -Wall -Werror -lsqlite3 -lcrypto
 
-server: clean main.o orchestrator.o general_serializer.o user_serializer.o admin_serializer.o database.o profile.o profile_to_json.o cjson.o
-	$(CC) -o ../bin/server main.o orchestrator.o general_serializer.o cjson.o user_serializer.o admin_serializer.o database.o profile.o profile_to_json.o $(CFLAGS)
+server: clean main.o orchestrator.o general_serializer.o user_serializer.o admin_serializer.o database.o profile.o profile_to_json.o cjson.o email_validator.o 
+	$(CC) -o ../bin/server main.o orchestrator.o general_serializer.o cjson.o user_serializer.o admin_serializer.o database.o profile.o profile_to_json.o email_validator.o  $(CFLAGS)
 
 main.o: main.c
 	$(CC) -c main.c -o main.o
@@ -32,6 +32,9 @@ profile.o:
 
 cjson.o:
 	$(CC) -c ../lib/cJSON.c -o cjson.o
+
+email_validator.o:
+	$(CC) -c ../utils/email_validator.c -o email_validator.o 
 
 # remove object files and executable when user executes "make clean"
 clean:

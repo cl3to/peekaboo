@@ -77,7 +77,11 @@ char* profiles_serializer(Profile *profiles){
 
 char* profile_by_email_serializer(Profile *profile, char *email){
 
-    // TODO: Add regex to email validation --> move to utils
+    printf("Profile ANTES DO ID CHECK EMAUL %d\n", check_email_format(email));
+    if (check_email_format(email) != 0) {
+      printf("Invalid e-mail! Please, provide a valid e-mail.\n");
+      return NULL;
+    }
   
     int profiles_amount = get_profile_by_email(profile, email);
 
