@@ -38,7 +38,7 @@ char* logout(char *session_token);
 // Create a new profile 
 // Returns 0 if the profile was created
 // Returns -1 if there was an error
-char* create_new_profile(char *session_token, char *email, char *name, char *last_name, char *city, char *academic_degree, int year_of_degree, char *habilities);
+char* create_new_profile(char *session_token, char *email, char *name, char *last_name, char *city, char *course, int year_of_degree, char *skills);
 
 // Remove a profile filter from email
 // Returns 0 if the profile was removed

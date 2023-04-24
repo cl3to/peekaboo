@@ -1,7 +1,7 @@
 #include "profile.h"
 
 // Create a new profile
-Profile *new_profile(char *email, char *name, char *last_name, char *city, char *academic_degree, int year_of_degree, char *habilities) {
+Profile *new_profile(char *email, char *name, char *last_name, char *city, char *course, int year_of_degree, char *skills) {
     Profile *profile = (Profile *) malloc(sizeof(Profile));
     if (profile == NULL) {
         return NULL;
@@ -10,9 +10,9 @@ Profile *new_profile(char *email, char *name, char *last_name, char *city, char 
     strcpy(profile->name, name);
     strcpy(profile->last_name, last_name);
     strcpy(profile->city, city);
-    strcpy(profile->academic_degree, academic_degree);
+    strcpy(profile->course, course);
     profile->year_of_degree = year_of_degree;
-    strcpy(profile->habilities, habilities);
+    strcpy(profile->skills, skills);
     // image is not set
     profile->image[0] = '\0';
     return profile;

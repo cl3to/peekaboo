@@ -95,13 +95,13 @@ char *logout(char *session_token)
   return make_admin_response(FAILURE, NULL);
 }
 
-char *create_new_profile(char *session_token, char *email, char *name, char *last_name, char *city, char *academic_degree, int year_of_degree, char *habilities)
+char *create_new_profile(char *session_token, char *email, char *name, char *last_name, char *city, char *course, int year_of_degree, char *skills)
 {
   if (validate_session_token(session_token) == 0)
   {
 
     Profile *profile = new_profile(
-        email, name, last_name, city, academic_degree, year_of_degree, habilities);
+        email, name, last_name, city, course, year_of_degree, skills);
 
     if (profile == NULL || store_profile(profile) < 0)
     {

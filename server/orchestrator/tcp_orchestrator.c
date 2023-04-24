@@ -135,7 +135,7 @@ int connection_loop(void)
             }
             request[request_len] = '\0';
 
-            printf("SERVER SIDE --> receve: %d bytes\n", request_len);
+            printf("SERVER SIDE --> request: %d bytes\n", request_len);
             printf("SERVER SIDE --> request msg: '%s'\n",request);
             
             response = general_serializer(profiles, request);

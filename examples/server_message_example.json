@@ -7,9 +7,9 @@
       "name": "Juan",
       "last_name": "Perez",
       "city": "Bogota",
-      "academic_degree": "Ingeniero",
+      "course": "Ingeniero",
       "year_of_degree": 2010,
-      "habilities": "C, C++, Java",
+      "skills": "C, C++, Java",
       "image": ""
     },
     {
@@ -17,9 +17,9 @@
       "name": "Elias",
       "last_name": "Novato",
       "city": "Cancún",
-      "academic_degree": "Masón",
+      "course": "Masón",
       "year_of_degree": 2014,
-      "habilities": "Construcción de viviendas, Muro de nivelación, Acabado",
+      "skills": "Construcción de viviendas, Muro de nivelación, Acabado",
       "image": ""
     }
   ]

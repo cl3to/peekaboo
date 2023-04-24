@@ -4,14 +4,14 @@
 #include "user_serializer.h"
 #include "../../utils/profile_to_json.h"
 
-char* profiles_by_academic_degree_serializer(Profile *profiles, char *academic_degree){
+char* profiles_by_course_serializer(Profile *profiles, char *course){
 
-    if (academic_degree == NULL || strlen(academic_degree) == 0){
+    if (course == NULL || strlen(course) == 0){
       fprintf(stderr, "Invalid academic degree, please provide a valid input.\n");
       return NULL;
     }
 
-    int profiles_amount = get_profiles_by_academic_degree(profiles, academic_degree);
+    int profiles_amount = get_profiles_by_course(profiles, course);
     
     if(profiles_amount < 0){
       fprintf(stderr, "Failed to retrieve data.\n");
@@ -23,14 +23,14 @@ char* profiles_by_academic_degree_serializer(Profile *profiles, char *academic_d
     return json_profiles;
   }
 
-char* profiles_by_habilities_serializer(Profile *profiles, char *habilities){
+char* profiles_by_skills_serializer(Profile *profiles, char *skill){
 
-    if (habilities == NULL || strlen(habilities) == 0){
-      fprintf(stderr, "Invalid habilities, please provide a valid input.\n");
+    if (skill == NULL || strlen(skill) == 0){
+      fprintf(stderr, "Invalid skill, please provide a valid input.\n");
       return NULL;
     }
 
-    int profiles_amount = get_profiles_by_habilities(profiles, habilities);
+    int profiles_amount = get_profiles_by_skill(profiles, skill);
 
     if(profiles_amount < 0){
       fprintf(stderr, "Failed to retrieve data.\n");

@@ -37,12 +37,12 @@ char *general_serializer(Profile *profiles, char *request_body)
   switch (operation_code)
   {
   case LIST_BY_COURSE:
-    response = profiles_by_academic_degree_serializer(
+    response = profiles_by_course_serializer(
         profiles,
         cJSON_GetObjectItemCaseSensitive(params_items, "course")->valuestring);
     break;
   case LIST_BY_SKILL:
-    response = profiles_by_habilities_serializer(
+    response = profiles_by_skills_serializer(
         profiles,
         cJSON_GetObjectItemCaseSensitive(params_items, "skills")->valuestring);
     break;
