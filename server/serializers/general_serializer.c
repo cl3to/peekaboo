@@ -59,6 +59,7 @@ char *general_serializer(Profile *profiles, char *request_body)
         profiles,
         cJSON_GetObjectItemCaseSensitive(params_items, "email")->valuestring);
     break;
+  // TODO: Implement this for the second assignment
   case DOWNLOAD_PROFILE_IMAGE:
     printf("Wait for Peekaboo 2.0 release.\n");
     response = NULL;

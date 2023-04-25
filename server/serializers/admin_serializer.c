@@ -32,6 +32,9 @@ int validate_session_token(char *session_token)
 char *validate_password(char *password)
 {
 
+  if (password == NULL)
+    return NULL;
+
   // Expected password hash
   unsigned char expected_hash[] = {
       0x25, 0x0e, 0x77, 0xf1, 0x2a, 0x5a, 0xb6, 0x97,
@@ -79,7 +82,7 @@ char *login_with_password(char *password)
 
   if (new_session_token == NULL)
   {
-    return make_admin_response(FAILURE, NULL);
+    return make_admin_response(INVALID_PASSWORD, NULL);
   }
 
   return make_admin_response(SUCCESS, new_session_token);
@@ -92,11 +95,24 @@ char *logout(char *session_token)
     memset(expected_session_token, '\0', SESSION_TOKEN_LENGTH);
     return make_admin_response(SUCCESS, NULL);
   }
-  return make_admin_response(FAILURE, NULL);
+  return make_admin_response(INVALID_SESSION_TOKEN, NULL);
+  s
 }
 
 char *create_new_profile(char *session_token, char *email, char *name, char *last_name, char *city, char *course, int year_of_degree, char *skills)
 {
+  // Check given perfil parameters
+  if (
+      name == NULL ||
+      last_name == NULL ||
+      city == NULL ||
+      course == NULL ||
+      year_of_degree == NULL ||
+      skills == NULL ||
+      check_email_format(email) != 0)
+  {
+    return make_admin_response(REGISTRATION_FAILED, NULL);
+  }
   if (validate_session_token(session_token) == 0)
   {
 
@@ -105,29 +121,29 @@ char *create_new_profile(char *session_token, char *email, char *name, char *las
 
     if (profile == NULL || store_profile(profile) < 0)
     {
-      return make_admin_response(FAILURE, NULL);
+      return make_admin_response(REGISTRATION_FAILED, NULL);
     }
-
     return make_admin_response(SUCCESS, NULL);
   }
-  return make_admin_response(FAILURE, NULL);
+  return make_admin_response(INVALID_SESSION_TOKEN, NULL);
 }
 
 char *remove_profile_by_email(char *session_token, char *email)
 {
+  if (check_email_format(email) != 0)
+  {
+    printf("Invalid e-mail! Please, provide a valid e-mail.\n");
+    return make_admin_response(REMOVAL_FAILED, NULL);
+  }
+
   if (validate_session_token(session_token) == 0)
   {
-
-    if (check_email_format(email) != 0)
-    {
-      printf("Invalid e-mail! Please, provide a valid e-mail.\n");
-      return make_admin_response(FAILURE, NULL);
-    }
 
     if (delete_profile_by_email(email) == 0)
     {
       return make_admin_response(SUCCESS, NULL);
     }
+    return make_admin_response(REMOVAL_FAILED, NULL);
   }
-  return make_admin_response(FAILURE, NULL);
+  return make_admin_response(INVALID_SESSION_TOKEN, NULL);
 }
