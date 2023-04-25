@@ -6,13 +6,10 @@
 #include <string.h>
 
 #include "../../utils/constants.h"
+#include "../../model/profile.h"
 
 #define MAX_MESSAGE_SIZE 1024
 #define MAX_PARAMETERS_SIZE 256
-
-// Validate the email
-// Returns 0 if the email is valid
-int validate_email(char *email);
 
 // Serialize the peekaboo operation
 // Returns the serialized operation
@@ -24,7 +21,7 @@ char *serialize_lbc_operation(char *course);
 
 // Create List by Skill (LBS) operation
 // Returns the serialized operation
-char *serialize_lbs_operation(char *skill);
+char *serialize_lbs_operation(char *skills);
 
 // Create List by Year (LBY) operation
 // Returns the serialized operation
@@ -37,5 +34,13 @@ char *serialize_la_operation();
 // Create Get Profile (GP) operation
 // Returns the serialized operation
 char *serialize_gp_operation(char *email);
+
+// Transform the server response into a Profile List
+// Returns the Profile List
+Profile *deserialize_profile(char *response, int *data_len);
+
+// Transform the server response into a Authentication data
+// Returns the Authentication data
+char *deserialize_authentication(char *response);
 
 #endif

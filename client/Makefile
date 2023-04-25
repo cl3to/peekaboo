@@ -6,8 +6,8 @@ CFLAGS = -Wall -Werror
 # Build client code
 
 # Build the client
-client: clean main.o stub.o tui.o serializer.o
-	$(CC) $(CFLAGS) -o ../bin/client main.o stub.o tui.o serializer.o
+client: clean main.o stub.o tui.o serializer.o cjson.o
+	$(CC) $(CFLAGS) -o ../bin/client main.o stub.o tui.o serializer.o cjson.o
 
 # Build the client object file
 main.o: main.c
@@ -24,6 +24,9 @@ stub.o:
 # Build the tui object file
 tui.o:
 	$(CC) $(CFLAGS) -c ui/peekaboo_tui.c -o tui.o
+
+cjson.o:
+	$(CC) -c ../lib/cJSON.c -o cjson.o
 
 # remove object files and executable when user executes "make clean"
 clean:

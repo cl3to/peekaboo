@@ -4,7 +4,6 @@
 #include "../serializer/serializer.h"
 #include "../stub/stub.h"
 
-#include "../../utils/constants.h"
 
 void peekaboo_tui(int argc, char **argv)
 {
@@ -49,7 +48,8 @@ void peekaboo_tui(int argc, char **argv)
 void user_mode_tui()
 {
     OperationCode operation_code;
-    char *serialized_operation = NULL;
+    char *request = NULL, *response = NULL;
+    int data_len;
 
     printf("Você está no modo usuário!\n");
 
@@ -74,15 +74,15 @@ void user_mode_tui()
             scanf(" %s", course);
             printf("Listando todos os perfis formados em %s...\n", course);
             // TODO: List by course
-            serialized_operation = serialize_lbc_operation(course);
+            request = serialize_lbc_operation(course);
             break;
         case LIST_BY_SKILL:
             printf("Digite a habilidade: ");
-            char skill[100];
-            scanf(" %s", skill);
-            printf("Listando todos os perfis que possuam a habilidade %s...\n", skill);
+            char skills[100];
+            scanf(" %s", skills);
+            printf("Listando todos os perfis que possuam a habilidade %s...\n", skills);
             // TODO: List by skill
-            serialized_operation = serialize_lbs_operation(skill);
+            request = serialize_lbs_operation(skills);
             break;
         case LIST_BY_YEAR:
             printf("Digite o ano: ");
@@ -90,12 +90,12 @@ void user_mode_tui()
             scanf(" %d", &year);
             printf("Listando todos os perfis formados em %d...\n", year);
             // TODO: List by year
-            serialized_operation = serialize_lby_operation(year);
+            request = serialize_lby_operation(year);
             break;
         case LIST_ALL_PROFILES:
             printf("Listando todas as informações de todos os perfis...\n");
             // TODO: List all profiles
-            serialized_operation = serialize_la_operation();
+            request = serialize_la_operation();
             break;
         case GET_PROFILE_BY_EMAIL:
             printf("Digite o email: ");
@@ -104,7 +104,7 @@ void user_mode_tui()
             // TODO: Validate email
             printf("Obtendo o perfil de %s...\n", email);
             // TODO: Get profile by email
-            serialized_operation = serialize_gp_operation(email);
+            request = serialize_gp_operation(email);
             break;
         case EXIT:
             printf("Saindo do Peekaboo...\n");
@@ -115,11 +115,17 @@ void user_mode_tui()
             break;
         }
 
-        if (serialized_operation)
+        if (request)
         {
-            make_request(serialized_operation);
-            free(serialized_operation);
-            serialized_operation = NULL;
+            response = make_request(request);
+            Profile* profiles = deserialize_profile(response, &data_len);
+            print_profile(profiles, data_len);
+
+            free(profiles);
+            free(request);
+            free(response);
+            request = NULL;
+            response = NULL;
         }
 
     } while (operation_code != 0);
@@ -128,4 +134,21 @@ void user_mode_tui()
 void admin_mode_tui()
 {
     printf("Você está no modo administrador!\n");
+}
+
+void print_profile(Profile *profile, int data_len)
+{
+    printf("Data len: %d\n", data_len);
+    for (int i = 0; i < data_len; i++)
+    {
+        printf("----------------------------------------\n");
+        printf("Nome: %s\n", profile[i].name);
+        printf("Sobrenome: %s\n", profile[i].last_name);
+        printf("Email: %s\n", profile[i].email);
+        printf("Formação Acadêmica: %s\n", profile[i].academic_degree);
+        printf("Ano de Formação: %d\n", profile[i].year_of_degree);
+        printf("Cidade: %s\n", profile[i].city);
+        printf("Habilidades: %s\n", profile[i].habilities);
+        printf("----------------------------------------\n");
+    }
 }
