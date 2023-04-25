@@ -16,6 +16,6 @@
 
 // Make a request to the server and return the response
 
-int make_request(char *request);
+char* make_request(char *request);
 
 #endif
