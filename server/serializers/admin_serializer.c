@@ -96,7 +96,6 @@ char *logout(char *session_token)
     return make_admin_response(SUCCESS, NULL);
   }
   return make_admin_response(INVALID_SESSION_TOKEN, NULL);
-  s
 }
 
 char *create_new_profile(char *session_token, char *email, char *name, char *last_name, char *city, char *course, int year_of_degree, char *skills)
@@ -107,7 +106,7 @@ char *create_new_profile(char *session_token, char *email, char *name, char *las
       last_name == NULL ||
       city == NULL ||
       course == NULL ||
-      year_of_degree == NULL ||
+      year_of_degree >= 0 ||
       skills == NULL ||
       check_email_format(email) != 0)
   {

@@ -42,7 +42,7 @@ char *general_serializer(Profile *profiles, char *request_body)
         cJSON_GetObjectItemCaseSensitive(params_items, "course")->valuestring);
     break;
   case LIST_BY_SKILL:
-    response = profiles_by_skills_serializer(
+    response = profiles_by_skill_serializer(
         profiles,
         cJSON_GetObjectItemCaseSensitive(params_items, "skills")->valuestring);
     break;

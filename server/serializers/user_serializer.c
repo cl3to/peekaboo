@@ -23,7 +23,7 @@ char* profiles_by_course_serializer(Profile *profiles, char *course){
     return json_profiles;
   }
 
-char* profiles_by_skills_serializer(Profile *profiles, char *skill){
+char* profiles_by_skill_serializer(Profile *profiles, char *skill){
 
     if (skill == NULL || strlen(skill) == 0){
       fprintf(stderr, "Invalid skill, please provide a valid input.\n");

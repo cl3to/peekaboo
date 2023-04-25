@@ -115,7 +115,7 @@ int get_profiles_by_course(Profile *profiles, char *course) {
     // Close the database
     sqlite3_close(db);
 
-    if (i > 0) {
+    if (i >= 0) {
         return i; // returns the number of profiles retrieved
      } else {
         return -1; // no profiles were found
@@ -161,7 +161,7 @@ int get_profiles_by_skill(Profile *profiles, char *skills) {
     // Close the database
     sqlite3_close(db);
 
-    if (i > 0) {
+    if (i >= 0) {
         return i; // returns the number of profiles retrieved
     } else {
         return -1; // no profiles were found
