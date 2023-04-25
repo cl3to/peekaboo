@@ -45,7 +45,7 @@ int connection_loop(void)
     const int BUFFER_SIZE = sizeof(Profile) * 20;
     char request[MAXDATASIZE+1];
     char* response;
-    int request_len, response_len ;
+    int request_len, response_len, shmid;
     Profile *profiles  = (Profile *) malloc(BUFFER_SIZE);
 
     int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
@@ -111,7 +111,23 @@ int connection_loop(void)
     }
 
     printf("server: waiting for connections...\n");
-    
+
+    // Create the shared memory segment
+    shmid = shmget(IPC_PRIVATE, SESSION_TOKEN_LENGTH + 1, IPC_CREAT | 0666);
+
+    if (shmid < 0) {
+        perror("Erro ao criar o segmento de memória compartilhada");
+        exit(1);
+    }
+
+    // Assign the shared memory segment to expected_session_token variable
+    expected_session_token = (char*) shmat(shmid, NULL, 0);
+
+    if (expected_session_token == (char*) -1) {
+        perror("Erro ao atribuir o segmento de memória compartilhada à variável");
+        exit(1);
+    }
+
     while(1) {  // main accept() loop
         sin_size = sizeof their_addr;
         new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);

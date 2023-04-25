@@ -2,20 +2,24 @@
 
 #define BUFFER_SIZE 512
 
-char expected_session_token[SESSION_TOKEN_LENGTH + 1];
-
 int generate_session_token()
 {
+  char new_session_token[SESSION_TOKEN_LENGTH + 1];
   static char valid_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~+/#$@&*?!";
 
+  // Generate a new session token 
   srand(time(NULL));
   for (int c = 0; c < SESSION_TOKEN_LENGTH; c++)
   {
     int key = rand() % (int)(sizeof(valid_chars) - 1);
-    expected_session_token[c] = valid_chars[key];
+    new_session_token[c] = valid_chars[key];
   }
 
-  expected_session_token[SESSION_TOKEN_LENGTH] = '\0';
+  new_session_token[SESSION_TOKEN_LENGTH] = '\0';
+
+  // Uptade expected_session_token (global variable) with the new_session_token
+  strncpy(expected_session_token, new_session_token, SESSION_TOKEN_LENGTH + 1);
+ 
   return 1;
 }
 
