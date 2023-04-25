@@ -8,8 +8,8 @@
 #include "../../utils/constants.h"
 #include "../../model/profile.h"
 
-#define MAX_MESSAGE_SIZE 1024
-#define MAX_PARAMETERS_SIZE 256
+#define MAX_MESSAGE_SIZE 2048
+#define MAX_PARAMETERS_SIZE 2048
 
 // Serialize the peekaboo operation
 // Returns the serialized operation
@@ -35,6 +35,22 @@ char *serialize_la_operation();
 // Returns the serialized operation
 char *serialize_gp_operation(char *email);
 
+// Create a Login operation
+// Returns the serialized operation
+char *serialize_login_operation(char *password);
+
+// Create a Create Profile (CP) operation
+// Returns the serialized operation
+char *serialize_cp_operation(Profile *profile, char* session_token);
+
+// Create a Remove Profile (RP) operation
+// Returns the serialized operation
+char *serialize_rp_operation(char *email, char *session_token);
+
+// Create a Logout operation
+// Returns the serialized operation
+char *serialize_logout_operation(char *session_token);
+
 // Transform the server response into a Profile List
 // Returns the Profile List
 Profile *deserialize_profile(char *response, int *data_len);
@@ -42,5 +58,10 @@ Profile *deserialize_profile(char *response, int *data_len);
 // Transform the server response into a Authentication data
 // Returns the Authentication data
 char *deserialize_authentication(char *response);
+
+// Check if the server response is a success
+// Returns a message indicating if the operation was successful or not
+// if the operation was failed, returns the error message
+char *deserialize_admin_operation_response(char *response);
 
 #endif

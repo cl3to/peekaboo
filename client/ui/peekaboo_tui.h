@@ -14,6 +14,6 @@ void user_mode_tui();
 void admin_mode_tui();
 
 // Peekaboo TUI - Print Profile
-void print_profile(Profile *profile, int data_len);
+void print_profile(Profile *profile, int data_len, OperationCode operation_code);
 
 #endif // PEAKABOO_TUI_H

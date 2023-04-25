@@ -36,8 +36,17 @@ typedef enum StatusCode
 {
     // Status code for successful action on the server
     SUCCESS = 200,
-    // Status code for failure action on the server
-    FAILURE = 400
+    // Status code for generic failure action on the server
+    FAILURE = 400,
+    // Status code for invalid password
+    INVALID_PASSWORD = 401,
+    // Status code for invalid session token
+    INVALID_SESSION_TOKEN = 402,
+    // Status code for failed profile registration
+    REGISTRATION_FAILED = 403,
+    // Status code for failed profile removal
+    REMOVAL_FAILED = 404,
+    
 } StatusCode;
 
 // Some constants
