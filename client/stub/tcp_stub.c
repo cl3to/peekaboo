@@ -11,10 +11,9 @@ void *get_in_addr(struct sockaddr *sa)
     return &(((struct sockaddr_in6 *)sa)->sin6_addr);
 }
 
-int make_request(char *request)
+char* make_request(char *request)
 {
     int sockfd, numbytes;
-    char buf[MAXDATASIZE + 1];
     struct addrinfo hints, *servinfo, *p;
     int rv;
     char s[INET6_ADDRSTRLEN];
@@ -28,7 +27,7 @@ int make_request(char *request)
     if ((rv = getaddrinfo(server_ip, PORT, &hints, &servinfo)) != 0)
     {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
-        return 1;
+        return NULL;
     }
 
     // loop through all the results and connect to the first we can
@@ -54,7 +53,7 @@ int make_request(char *request)
     if (p == NULL)
     {
         fprintf(stderr, "client: failed to connect\n");
-        return 2;
+        return NULL;
     }
 
     inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr),
@@ -70,18 +69,20 @@ int make_request(char *request)
         perror("send");
 
     printf("CLIENT SIDE --> send bytes: %d\n", numbytes);
-
-    if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1)
+    
+    char* response = malloc(MAXDATASIZE); // Allocating memory for response
+    
+    if ((numbytes = recv(sockfd, response, MAXDATASIZE, 0)) == -1)
     {
         perror("recv");
         exit(1);
     }
     printf("CLIENT SIDE --> receve bytes: %d\n", numbytes);
 
-    buf[numbytes] = '\0';
-    printf("CLIENT SIDE --> received response: '%s'\n",buf);
+    response[numbytes] = '\0';
+    // printf("CLIENT SIDE --> received response: '%s'\n", response);
 
     close(sockfd);
 
-    return 0;
+    return response;
 }
