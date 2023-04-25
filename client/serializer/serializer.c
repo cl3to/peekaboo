@@ -100,8 +100,8 @@ char *serialize_rp_operation(char *email, char *session_token)
     sprintf(
         parameters,
         "{"
-        "\"session_token\": \"%s\""
-        "\"email\": \"%s\","
+        "\"session_token\": \"%s\","
+        "\"email\": \"%s\""
         "}",
         session_token,
         email
