@@ -2,6 +2,10 @@
 
 int check_email_format(char *email)
 {
+
+  if (email == NULL)
+    return -1;
+
   regex_t regex;
   int is_valid;
 

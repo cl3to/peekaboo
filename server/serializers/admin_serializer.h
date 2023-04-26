@@ -11,6 +11,11 @@
 #include "../../utils/constants.h"
 #include "../../utils/email_validator.h"
 
+
+// Global variable to handle the session token
+// This variable is shared between the processes
+char *expected_session_token;
+
 // Generate a token to the current serssion
 // Returns 1 after instantiation the new token
 int generate_session_token();

@@ -13,6 +13,7 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <sys/shm.h>
 
 #include "../serializers/general_serializer.h"
 #include "../../model/profile.h"

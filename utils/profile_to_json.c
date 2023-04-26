@@ -59,6 +59,17 @@ char* profiles_to_json(struct profile* profiles, int profiles_amount, OperationC
 
     char buffer[MAXDATASIZE];
 
+    if(profiles_amount==0){
+        snprintf(buffer, MAXDATASIZE, "{"
+            "\"operation_code\": %d,"
+            "\"data_length\": %d,"
+            "\"data\": []"
+            "}",
+            operation_code, profiles_amount
+        );
+        return strdup(buffer);
+    }
+
     // open the JSON array
     snprintf(buffer, MAXDATASIZE, "{"
         "\"operation_code\": %d,"

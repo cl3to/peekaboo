@@ -42,7 +42,7 @@ char *general_serializer(Profile *profiles, char *request_body)
         cJSON_GetObjectItemCaseSensitive(params_items, "course")->valuestring);
     break;
   case LIST_BY_SKILL:
-    response = profiles_by_skills_serializer(
+    response = profiles_by_skill_serializer(
         profiles,
         cJSON_GetObjectItemCaseSensitive(params_items, "skills")->valuestring);
     break;
@@ -59,6 +59,7 @@ char *general_serializer(Profile *profiles, char *request_body)
         profiles,
         cJSON_GetObjectItemCaseSensitive(params_items, "email")->valuestring);
     break;
+  // TODO: Implement this for the second assignment
   case DOWNLOAD_PROFILE_IMAGE:
     printf("Wait for Peekaboo 2.0 release.\n");
     response = NULL;
