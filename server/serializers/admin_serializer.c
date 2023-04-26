@@ -41,13 +41,35 @@ char *validate_password(char *password)
   if (password == NULL)
     return NULL;
 
-  // Expected password hash
-  unsigned char expected_hash[] = {
-      0x25, 0x0e, 0x77, 0xf1, 0x2a, 0x5a, 0xb6, 0x97,
-      0x2a, 0x08, 0x95, 0xd2, 0x90, 0xc4, 0x79, 0x2f,
-      0x0a, 0x32, 0x6e, 0xa8};
-
+  // Open file with the password
+  FILE *fptr;
+  unsigned char* expected_hash;
   unsigned char hash[SHA_DIGEST_LENGTH];
+  long file_size;
+
+  // Open file
+  fptr = fopen("../password_sha1.pwd", "r");
+
+  // Check if file exists
+  if (fptr == NULL) {
+      printf("Cannot open password file. \n");
+      return NULL;
+  }
+
+  // Determine file size
+  fseek(fptr, 0, SEEK_END);
+  file_size = ftell(fptr);
+  rewind(fptr);
+
+  // Allocate memory for buffer
+  expected_hash = (char*) malloc(file_size + 1);
+  expected_hash[file_size] = '\0';
+
+  // Read file into buffer
+  fread(expected_hash, 1, file_size, fptr);
+
+  // Close file
+  fclose(fptr);
 
   SHA1(password, strlen(password), hash);
 
