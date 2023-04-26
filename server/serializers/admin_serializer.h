@@ -14,7 +14,7 @@
 
 // Global variable to handle the session token
 // This variable is shared between the processes
-char *expected_session_token;
+extern char *expected_session_token;
 
 // Generate a token to the current serssion
 // Returns 1 after instantiation the new token

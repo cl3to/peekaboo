@@ -14,6 +14,8 @@
 
 #include "../../utils/constants.h"
 
+#define BUFFER_SIZE 1500
+
 // Make a request to the server and return the response
 
 char* make_request(char *request);

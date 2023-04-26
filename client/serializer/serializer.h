@@ -62,6 +62,6 @@ char *deserialize_authentication(char *response);
 // Check if the server response is a success
 // Returns a message indicating if the operation was successful or not
 // if the operation was failed, returns the error message
-char *deserialize_admin_operation_response(char *response);
+char *deserialize_admin_operation_response(char *response, int *status_p);
 
 #endif
