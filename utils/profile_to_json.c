@@ -55,19 +55,23 @@ char* make_academic_profile(struct profile* profile) {
     return strdup(buffer);
 }
 
+char* make_empty_response(OperationCode operation_code, char* buffer){
+    snprintf(buffer, MAXDATASIZE, "{"
+        "\"operation_code\": %d,"
+        "\"data_length\": 0,"
+        "\"data\": []"
+        "}",
+        operation_code
+    );
+    return strdup(buffer);
+}
+
 char* profiles_to_json(struct profile* profiles, int profiles_amount, OperationCode operation_code) {
 
     char buffer[MAXDATASIZE];
 
-    if(profiles_amount==0){
-        snprintf(buffer, MAXDATASIZE, "{"
-            "\"operation_code\": %d,"
-            "\"data_length\": %d,"
-            "\"data\": []"
-            "}",
-            operation_code, profiles_amount
-        );
-        return strdup(buffer);
+    if(profiles_amount<=0 ||  profiles==NULL){
+        return make_empty_response(operation_code, buffer);
     }
 
     // open the JSON array

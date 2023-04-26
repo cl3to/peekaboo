@@ -10,7 +10,6 @@ char *profiles_by_course_serializer(Profile *profiles, char *course)
   if (course == NULL || strlen(course) == 0)
   {
     fprintf(stderr, "Invalid academic degree, please provide a valid input.\n");
-    return NULL;
   }
 
   int profiles_amount = get_profiles_by_course(profiles, course);
@@ -18,7 +17,6 @@ char *profiles_by_course_serializer(Profile *profiles, char *course)
   if (profiles_amount < 0)
   {
     fprintf(stderr, "Failed to retrieve data.\n");
-    return NULL;
   }
 
   char *json_profiles = profiles_to_json(profiles, profiles_amount, LIST_BY_COURSE);
@@ -32,7 +30,6 @@ char *profiles_by_skill_serializer(Profile *profiles, char *skill)
   if (skill == NULL || strlen(skill) == 0)
   {
     fprintf(stderr, "Invalid skill, please provide a valid input.\n");
-    return NULL;
   }
 
   int profiles_amount = get_profiles_by_skill(profiles, skill);
@@ -40,7 +37,6 @@ char *profiles_by_skill_serializer(Profile *profiles, char *skill)
   if (profiles_amount < 0)
   {
     fprintf(stderr, "Failed to retrieve data.\n");
-    return NULL;
   }
 
   char *json_profiles = profiles_to_json(profiles, profiles_amount, LIST_BY_SKILL);
@@ -54,7 +50,6 @@ char *profiles_by_year_of_degree_serializer(Profile *profiles, int year_of_degre
   if (year_of_degree <= 0)
   {
     fprintf(stderr, "Invalid year of degree degree, please provide a valid input.\n");
-    return NULL;
   }
 
   int profiles_amount = get_profiles_by_year_of_degree(profiles, year_of_degree);
@@ -62,7 +57,6 @@ char *profiles_by_year_of_degree_serializer(Profile *profiles, int year_of_degre
   if (profiles_amount < 0)
   {
     fprintf(stderr, "Failed to retrieve data.\n");
-    return NULL;
   }
 
   char *json_profiles = profiles_to_json(profiles, profiles_amount, LIST_BY_YEAR);
@@ -78,9 +72,7 @@ char *profiles_serializer(Profile *profiles)
   if (profiles_amount < 0)
   {
     fprintf(stderr, "Failed to retrieve data.\n");
-    return NULL;
   }
-
 
   char *json_profiles = profiles_to_json(profiles, profiles_amount, LIST_ALL_PROFILES);
 
@@ -93,7 +85,6 @@ char *profile_by_email_serializer(Profile *profile, char *email)
   if (check_email_format(email) != 0)
   {
     printf("Invalid e-mail! Please, provide a valid e-mail.\n");
-    return NULL;
   }
 
   int profiles_amount = get_profile_by_email(profile, email);
@@ -101,7 +92,6 @@ char *profile_by_email_serializer(Profile *profile, char *email)
   if (profiles_amount < 0)
   {
     fprintf(stderr, "Failed to retrieve data.\n");
-    return NULL;
   }
 
   char *json_profiles = profiles_to_json(profile, profiles_amount, GET_PROFILE_BY_EMAIL);
