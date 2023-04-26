@@ -2,6 +2,8 @@
 
 #define BUFFER_SIZE 512
 
+char *expected_session_token;
+
 int generate_session_token()
 {
   char new_session_token[SESSION_TOKEN_LENGTH + 1];
@@ -110,7 +112,7 @@ char *create_new_profile(char *session_token, char *email, char *name, char *las
       last_name == NULL ||
       city == NULL ||
       course == NULL ||
-      year_of_degree >= 0 ||
+      year_of_degree <= 0 ||
       skills == NULL ||
       check_email_format(email) != 0)
   {

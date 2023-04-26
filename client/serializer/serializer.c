@@ -77,6 +77,7 @@ char *serialize_cp_operation(Profile *profile, char *session_token)
         "\"email\": \"%s\","
         "\"name\": \"%s\","
         "\"last_name\": \"%s\","
+        "\"city\": \"%s\","
         "\"course\": \"%s\","
         "\"year_of_degree\": %d,"
         "\"skills\": \"%s\""
@@ -85,10 +86,10 @@ char *serialize_cp_operation(Profile *profile, char *session_token)
         profile->email,
         profile->name,
         profile->last_name,
+        profile->city,
         profile->course,
         profile->year_of_degree,
-        profile->skills
-    );
+        profile->skills);
     char *serialized_operation = serialize_operation(NEW_PROFILE, 7, parameters);
     free(parameters);
     return serialized_operation;
@@ -104,8 +105,7 @@ char *serialize_rp_operation(char *email, char *session_token)
         "\"email\": \"%s\""
         "}",
         session_token,
-        email
-    );
+        email);
     char *serialized_operation = serialize_operation(REMOVE_PROFILE_BY_EMAIL, 2, parameters);
     free(parameters);
     return serialized_operation;
@@ -119,8 +119,7 @@ char *serialize_logout_operation(char *session_token)
         "{"
         "\"session_token\": \"%s\""
         "}",
-        session_token
-    );
+        session_token);
     char *serialized_operation = serialize_operation(LOGOUT, 1, parameters);
     free(parameters);
     return serialized_operation;
@@ -149,11 +148,12 @@ Profile *deserialize_profile(char *response, int *data_len)
 
     (*data_len) = data_len_item->valueint;
 
+    // Contain a list of profiles in json format
     data_item = cJSON_GetObjectItemCaseSensitive(json, "data");
-    
     Profile *profiles = malloc(sizeof(Profile) * (*data_len));
 
-    for(int i = 0; i < (*data_len); i++)
+    // Iterate over json profiles array and deserialize each profile
+    for (int i = 0; i < (*data_len); i++)
     {
         // Get item in data array
         profile_item = cJSON_GetArrayItem(data_item, i);
@@ -162,7 +162,7 @@ Profile *deserialize_profile(char *response, int *data_len)
         cJSON *email_item = cJSON_GetObjectItemCaseSensitive(profile_item, "email");
         cJSON *first_name_item = cJSON_GetObjectItemCaseSensitive(profile_item, "name");
         cJSON *last_name_item = cJSON_GetObjectItemCaseSensitive(profile_item, "last_name");
-        cJSON *city  = cJSON_GetObjectItemCaseSensitive(profile_item, "city");
+        cJSON *city = cJSON_GetObjectItemCaseSensitive(profile_item, "city");
         cJSON *course_item = cJSON_GetObjectItemCaseSensitive(profile_item, "course");
         cJSON *year_of_degree_item = cJSON_GetObjectItemCaseSensitive(profile_item, "year_of_degree");
         cJSON *skills_item = cJSON_GetObjectItemCaseSensitive(profile_item, "skills");
@@ -221,7 +221,7 @@ char *deserialize_authentication(char *response)
     return session_token_item->valuestring;
 }
 
-char *deserialize_admin_operation_response(char *response)
+char *deserialize_admin_operation_response(char *response, int *status_p)
 {
     // Json parsing using cJSON library
     cJSON *json = cJSON_Parse(response);
@@ -242,7 +242,7 @@ char *deserialize_admin_operation_response(char *response)
 
     int status_code = status_item->valueint;
     int message_size = 512;
-    char* status_message = malloc(message_size);
+    char *status_message = malloc(message_size);
 
     switch (status_code)
     {
@@ -266,5 +266,7 @@ char *deserialize_admin_operation_response(char *response)
         break;
     }
 
+    // Save status code in pointer address to be used in caller function
+    (*status_p) = status_code;
     return status_message;
 }

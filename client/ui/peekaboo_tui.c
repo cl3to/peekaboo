@@ -47,7 +47,7 @@ void peekaboo_tui(int argc, char **argv)
         if (option == 1)
         {
             printf("Digite o curso: ");
-            scanf(" %s", input);
+            scanf(" %[^\n]", input);
             printf("Listando todos os perfis formados em %s...\n", input);
             request = serialize_lbc_operation(input);  
             operation_code = LIST_BY_COURSE;
@@ -55,7 +55,7 @@ void peekaboo_tui(int argc, char **argv)
         else if (option == 2)
         {
             printf("Digite a habilidade: ");
-            scanf(" %s", input);
+            scanf(" %[^\n]", input);
             printf("Listando todos os perfis que possuam a habilidade %s...\n", input);
             request = serialize_lbs_operation(input);
             operation_code = LIST_BY_SKILL;
@@ -123,12 +123,14 @@ void peekaboo_tui(int argc, char **argv)
                     scanf(" %s", new_profile.email);
                 }
                 printf("Digite o nome: ");
-                scanf(" %s", new_profile.name);
+                scanf(" %[^\n]", new_profile.name);
                 printf("Digite o sobrenome: ");
-                scanf(" %s", new_profile.last_name);
+                scanf(" %[^\n]", new_profile.last_name);
+                printf("Digite a cidade de residência: ");
+                scanf(" %[^\n]", new_profile.city);
                 printf("Digite a Formação Academica: ");
-                scanf(" %s", new_profile.course);
-                printf("Digite o ano de formação: ");
+                scanf(" %[^\n]", new_profile.course);
+                printf("Digite o ano de formatura: ");
                 scanf(" %d", &new_profile.year_of_degree);
                 printf("Digite as habilidades (h1, h2, ..., hn): ");
                 scanf(" %[^\n]", new_profile.skills);
@@ -183,9 +185,15 @@ void peekaboo_tui(int argc, char **argv)
             }
             else if (session_token)
             {
-                char *status_message = deserialize_admin_operation_response(response);
+                int status;
+                char *status_message = deserialize_admin_operation_response(response, &status);
+
                 if (status_message)
                     printf("%s\n", status_message);
+
+                if (operation_code == LOGOUT && status == 200)
+                    session_token = NULL;
+
                 free(status_message);
             }
 
@@ -201,7 +209,9 @@ void print_profile(Profile *profile, int data_len, OperationCode operation_code)
 {
     if (data_len == 0)
     {
+        printf("-----------------------------------------\n");
         printf("Nenhum perfil encontrado!\n");
+        printf("-----------------------------------------\n");
         return;
     }
 
