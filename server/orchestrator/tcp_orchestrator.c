@@ -42,7 +42,7 @@ int send_all_data(int s, char *buf, int *len)
 int connection_loop(void)
 {
 
-    const int BUFFER_SIZE = sizeof(Profile) * 20;
+    const int BUFFER_SIZE = sizeof(Profile) * 64;
     char request[MAXDATASIZE+1];
     char* response;
     int request_len, response_len, shmid;

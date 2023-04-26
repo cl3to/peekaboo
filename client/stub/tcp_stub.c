@@ -79,7 +79,7 @@ char* make_request(char *request)
     inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr),
               s, sizeof s);
 
-    printf("client: connecting to %s\n", s);
+    // fprintf(stderr, "client: connecting to %s\n", s);
 
     freeaddrinfo(servinfo); // all done with this structure
 
@@ -88,7 +88,7 @@ char* make_request(char *request)
     if ((numbytes = send(sockfd, request, data_len, 0)) == -1)
         perror("send");
 
-    printf("CLIENT SIDE --> send bytes: %d\n", numbytes);
+    // fprintf(stderr, "CLIENT SIDE --> send bytes: %d\n", numbytes);
     
     char* response = calloc(MAXDATASIZE, 1); // Allocating memory for response
     char buffer[BUFFER_SIZE] = {0};
@@ -103,13 +103,14 @@ char* make_request(char *request)
             perror("recv");
             exit(1);
         }
-        printf("CLIENT SIDE --> receve bytes: %d\n", numbytes);
+
+        // fprintf(stderr, "CLIENT SIDE --> receve bytes: %d\n", numbytes);
 
         start = end;
         end += numbytes;
         strncpy(response + start, buffer, numbytes);
         check_received_message(response, &depth, start, end);
-        printf("start: %d, end: %d, depth: %d\n", start, end, depth);
+
         if (depth == 0)
             received = 1;
 
@@ -117,15 +118,6 @@ char* make_request(char *request)
         if (recall == 0)
             break;
     }
-
-    // if ((numbytes = recv(sockfd, response, MAXDATASIZE, 0)) == -1)
-    // {
-    //     perror("recv");
-    //     exit(1);
-    // }
-    // printf("CLIENT SIDE --> receve bytes: %d\n", numbytes);
-
-    // response[numbytes] = '\0';
 
     close(sockfd);
 
