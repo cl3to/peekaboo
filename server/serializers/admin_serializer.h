@@ -5,7 +5,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-#include <openssl/sha.h>
+
+#include "../../lib/sha1-c/sha1.h"
 
 #include "../database/database.h"
 #include "../../utils/constants.h"

@@ -9,7 +9,7 @@ int generate_session_token()
   char new_session_token[SESSION_TOKEN_LENGTH + 1];
   static char valid_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~+/#$@&*?!";
 
-  // Generate a new session token 
+  // Generate a new session token
   srand(time(NULL));
   for (int c = 0; c < SESSION_TOKEN_LENGTH; c++)
   {
@@ -21,7 +21,7 @@ int generate_session_token()
 
   // Uptade expected_session_token (global variable) with the new_session_token
   strncpy(expected_session_token, new_session_token, SESSION_TOKEN_LENGTH + 1);
- 
+
   return 1;
 }
 
@@ -42,39 +42,48 @@ char *validate_password(char *password)
     return NULL;
 
   // Open file with the password
-  FILE *fptr;
-  unsigned char* expected_hash;
-  unsigned char hash[SHA_DIGEST_LENGTH];
-  long file_size;
+  FILE *pwd_file;
+  pwd_file = fopen("../password_sha1.pwd", "rb");
 
-  // Open file
-  fptr = fopen("../password_sha1.pwd", "r");
-
-  // Check if file exists
-  if (fptr == NULL) {
-      printf("Cannot open password file. \n");
-      return NULL;
+  if (pwd_file == NULL)
+  {
+    printf("Cannot open password file. \n");
+    return NULL;
   }
 
-  // Determine file size
-  fseek(fptr, 0, SEEK_END);
-  file_size = ftell(fptr);
-  rewind(fptr);
+  // Read password hash from file
+  unsigned int expected_hash[5];
+  if (fscanf(pwd_file, "%08x%08x%08x%08x%08x",
+             &expected_hash[0],
+             &expected_hash[1],
+             &expected_hash[2],
+             &expected_hash[3],
+             &expected_hash[4]) != 5)
+  {
+    printf("Error reading password file.\n");
+    fclose(pwd_file);
+    return NULL;
+  }
 
-  // Allocate memory for buffer
-  expected_hash = (char*) malloc(file_size + 1);
-  expected_hash[file_size] = '\0';
+  fclose(pwd_file);
 
-  // Read file into buffer
-  fread(expected_hash, 1, file_size, fptr);
+  // Calculate SHA-1 hash of given password
+  SHA1Context pwd_hash;
+  SHA1Reset(&pwd_hash);
+  SHA1Input(&pwd_hash, (const unsigned char *)password, strlen(password));
 
-  // Close file
-  fclose(fptr);
-
-  SHA1(password, strlen(password), hash);
+  if (!SHA1Result(&pwd_hash))
+  {
+    fprintf(stderr, "An error occurred while creating the password hash.\n");
+    return NULL;
+  }
 
   // Compare generated hash with expected hash
-  if (memcmp(hash, expected_hash, SHA_DIGEST_LENGTH) == 0)
+  if (pwd_hash.Message_Digest[0] == expected_hash[0] &&
+      pwd_hash.Message_Digest[1] == expected_hash[1] &&
+      pwd_hash.Message_Digest[2] == expected_hash[2] &&
+      pwd_hash.Message_Digest[3] == expected_hash[3] &&
+      pwd_hash.Message_Digest[4] == expected_hash[4])
   {
     generate_session_token();
     return strdup(expected_session_token);

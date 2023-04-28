@@ -1,10 +1,10 @@
 
 # Flags
 CC = gcc
-CFLAGS = -Wall -Werror -lsqlite3 -lcrypto
+CFLAGS = -Wall -Werror -lsqlite3
 
-server: clean main.o orchestrator.o general_serializer.o user_serializer.o admin_serializer.o database.o profile.o profile_to_json.o cjson.o email_validator.o 
-	$(CC) -o ../bin/server main.o orchestrator.o general_serializer.o cjson.o user_serializer.o admin_serializer.o database.o profile.o profile_to_json.o email_validator.o  $(CFLAGS)
+server: clean main.o orchestrator.o general_serializer.o user_serializer.o admin_serializer.o database.o profile.o profile_to_json.o cjson.o email_validator.o sha1.o
+	$(CC) -o ../bin/server main.o orchestrator.o general_serializer.o cjson.o user_serializer.o admin_serializer.o database.o profile.o profile_to_json.o email_validator.o sha1.o $(CFLAGS)
 
 main.o: main.c
 	$(CC) -c main.c -o main.o
@@ -30,11 +30,14 @@ database.o:
 profile.o:
 	$(CC) -c ../model/profile.c -o profile.o
 
+email_validator.o:
+	$(CC) -c ../utils/email_validator.c -o email_validator.o 
+
 cjson.o:
 	$(CC) -c ../lib/cJSON.c -o cjson.o
 
-email_validator.o:
-	$(CC) -c ../utils/email_validator.c -o email_validator.o 
+sha1.o:
+	$(CC) -c ../lib/sha1-c/sha1.c -o sha1.o
 
 # remove object files and executable when user executes "make clean"
 clean:
