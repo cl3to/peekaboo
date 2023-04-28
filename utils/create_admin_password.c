@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <openssl/sha.h>
 #include <unistd.h>
+#include "../lib/sha1-c/sha1.h"
 
 int main()
 {
@@ -20,18 +20,39 @@ int main()
   }
 
   // Calculate SHA-1 hash of password
-  unsigned char hash[SHA_DIGEST_LENGTH];
-  SHA1(password, strlen(password), hash);
+  SHA1Context hash;
+  SHA1Reset(&hash);
+  SHA1Input(&hash, (const unsigned char *)password, strlen(password));
 
-  // Open file for writing
-  FILE *fp;
-  fp = fopen("../password_sha1.pwd", "w");
+  if (!SHA1Result(&hash))
+  {
+    fprintf(stderr, "Ocorreu um erro durante a criação da senha. Realize a ação novamente.\n");
+    return -1;
+  }
+  else
+  {
 
-  fprintf(fp, "%s", hash);
+    // Open file for writing
+    FILE *fp;
+    fp = fopen("../password_sha1.pwd", "wb");
 
-  fclose(fp);
+    if (fp == NULL)
+    {
+      printf("Erro ao salva a senha. Realize a ação novamente.\n");
+      return -1;
+    }
 
-  printf("Senha salva com sucesso!\n");
+    fprintf(fp, "%08x%08x%08x%08x%08x",
+            hash.Message_Digest[0],
+            hash.Message_Digest[1],
+            hash.Message_Digest[2],
+            hash.Message_Digest[3],
+            hash.Message_Digest[4]);
+
+    fclose(fp);
+
+    printf("Senha salva com sucesso!\n");
+  }
 
   return 0;
 }
