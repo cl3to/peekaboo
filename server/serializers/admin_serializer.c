@@ -1,9 +1,12 @@
 #include "admin_serializer.h"
 
+// Length of the admin resposne
 #define BUFFER_SIZE 512
 
+// Pointer to the global variable with the session token
 char *expected_session_token;
 
+// Generate a token to the current serssion using the valid_chars
 int generate_session_token()
 {
   char new_session_token[SESSION_TOKEN_LENGTH + 1];
@@ -25,19 +28,22 @@ int generate_session_token()
   return 1;
 }
 
+// Validate the given session token
 int validate_session_token(char *session_token)
 {
   if (session_token != NULL && strcmp(session_token, expected_session_token) == 0)
   {
     return 0;
   }
-  printf("Invalid session token.\n");
+  int pid = getpid();
+  fprintf(stderr, "(pid %d) SERVER >>> Invalid session token.\n", pid);
   return -1;
 }
 
+// Validate the given password
 char *validate_password(char *password)
 {
-
+  int pid = getpid();
   if (password == NULL)
     return NULL;
 
@@ -47,7 +53,7 @@ char *validate_password(char *password)
 
   if (pwd_file == NULL)
   {
-    printf("Cannot open password file. \n");
+    fprintf(stderr, "(pid %d) SERVER >>> Cannot open password file. \n", pid);
     return NULL;
   }
 
@@ -60,7 +66,7 @@ char *validate_password(char *password)
              &expected_hash[3],
              &expected_hash[4]) != 5)
   {
-    printf("Error reading password file.\n");
+    fprintf(stderr, "(pid %d) SERVER >>> Error reading password file.\n", pid);
     fclose(pwd_file);
     return NULL;
   }
@@ -74,7 +80,7 @@ char *validate_password(char *password)
 
   if (!SHA1Result(&pwd_hash))
   {
-    fprintf(stderr, "An error occurred while creating the password hash.\n");
+    fprintf(stderr, "(pid %d) SERVER >>> An error occurred while creating the password hash.\n", pid);
     return NULL;
   }
 
@@ -88,11 +94,12 @@ char *validate_password(char *password)
     generate_session_token();
     return strdup(expected_session_token);
   }
-  printf("The password provided is invalid.\n");
+  fprintf(stderr, "(pid %d) SERVER >>> The password provided is invalid.\n", pid);
   return NULL;
 }
 
-char *make_admin_response(StatusCode status_code, char *session_token)
+// Build  a admin response in json format
+char *_make_admin_response(StatusCode status_code, char *session_token)
 {
   char admin_response[BUFFER_SIZE];
   if (session_token == NULL)
@@ -113,28 +120,31 @@ char *make_admin_response(StatusCode status_code, char *session_token)
   return strdup(admin_response);
 }
 
+// Login to the system's administrative area
 char *login_with_password(char *password)
 {
   char *new_session_token = validate_password(password);
 
   if (new_session_token == NULL)
   {
-    return make_admin_response(INVALID_PASSWORD, NULL);
+    return _make_admin_response(INVALID_PASSWORD, NULL);
   }
 
-  return make_admin_response(SUCCESS, new_session_token);
+  return _make_admin_response(SUCCESS, new_session_token);
 }
 
+// Logout from the system's administrative area
 char *logout(char *session_token)
 {
   if (validate_session_token(session_token) == 0)
   {
     memset(expected_session_token, '\0', SESSION_TOKEN_LENGTH);
-    return make_admin_response(SUCCESS, NULL);
+    return _make_admin_response(SUCCESS, NULL);
   }
-  return make_admin_response(INVALID_SESSION_TOKEN, NULL);
+  return _make_admin_response(INVALID_SESSION_TOKEN, NULL);
 }
 
+// Create a new profile
 char *create_new_profile(char *session_token, char *email, char *name, char *last_name, char *city, char *course, int year_of_degree, char *skills)
 {
   // Check given perfil parameters
@@ -147,8 +157,9 @@ char *create_new_profile(char *session_token, char *email, char *name, char *las
       skills == NULL ||
       check_email_format(email) != 0)
   {
-    return make_admin_response(REGISTRATION_FAILED, NULL);
+    return _make_admin_response(REGISTRATION_FAILED, NULL);
   }
+
   if (validate_session_token(session_token) == 0)
   {
 
@@ -157,19 +168,22 @@ char *create_new_profile(char *session_token, char *email, char *name, char *las
 
     if (profile == NULL || store_profile(profile) < 0)
     {
-      return make_admin_response(REGISTRATION_FAILED, NULL);
+      return _make_admin_response(REGISTRATION_FAILED, NULL);
     }
-    return make_admin_response(SUCCESS, NULL);
+    return _make_admin_response(SUCCESS, NULL);
   }
-  return make_admin_response(INVALID_SESSION_TOKEN, NULL);
+  return _make_admin_response(INVALID_SESSION_TOKEN, NULL);
 }
 
+// Remove a profile filter from email
 char *remove_profile_by_email(char *session_token, char *email)
 {
+  // Check given email address
   if (check_email_format(email) != 0)
   {
-    printf("Invalid e-mail! Please, provide a valid e-mail.\n");
-    return make_admin_response(REMOVAL_FAILED, NULL);
+    int pid = getpid();
+    fprintf(stderr, "(pid %d) SERVER >>> Invalid e-mail! Please, provide a valid e-mail.\n", pid);
+    return _make_admin_response(REMOVAL_FAILED, NULL);
   }
 
   if (validate_session_token(session_token) == 0)
@@ -177,9 +191,9 @@ char *remove_profile_by_email(char *session_token, char *email)
 
     if (delete_profile_by_email(email) == 0)
     {
-      return make_admin_response(SUCCESS, NULL);
+      return _make_admin_response(SUCCESS, NULL);
     }
-    return make_admin_response(REMOVAL_FAILED, NULL);
+    return _make_admin_response(REMOVAL_FAILED, NULL);
   }
-  return make_admin_response(INVALID_SESSION_TOKEN, NULL);
+  return _make_admin_response(INVALID_SESSION_TOKEN, NULL);
 }

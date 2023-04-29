@@ -4,8 +4,10 @@
 #include <unistd.h>
 #include "../lib/sha1-c/sha1.h"
 
+// Create a new password for the admin's system
 int main()
 {
+  // Read a password from the terminal
   char *password, *validate_password;
 
   password = strdup(getpass("Digite uma senha: "));
@@ -42,6 +44,7 @@ int main()
       return -1;
     }
 
+    // Save the given password in the password_sha1.pwd file
     fprintf(fp, "%08x%08x%08x%08x%08x",
             hash.Message_Digest[0],
             hash.Message_Digest[1],

@@ -1,7 +1,9 @@
 #include "general_serializer.h"
 
+// Serializer to make json parsing and choice the correct serializer function
 char *general_serializer(Profile *profiles, char *request_body)
 {
+  int pid = getpid();
 
   int operation_code, params_length;
   char *response;
@@ -10,7 +12,7 @@ char *general_serializer(Profile *profiles, char *request_body)
   cJSON *json = cJSON_Parse(request_body);
   if (json == NULL)
   {
-    printf("Error parsing JSON: %s\n", cJSON_GetErrorPtr());
+    fprintf(stderr, "(pid %d) SERVER >>> Error parsing JSON: %s\n", pid, cJSON_GetErrorPtr());
     return NULL;
   }
 
@@ -26,7 +28,7 @@ char *general_serializer(Profile *profiles, char *request_body)
       !cJSON_IsNumber(operation_code_item) ||
       !cJSON_IsNumber(params_length_item))
   {
-    printf("Invalid request\n");
+    fprintf(stderr, "(pid %d) SERVER >>> Invalid request\n", pid);
     return NULL;
   }
 
@@ -61,7 +63,7 @@ char *general_serializer(Profile *profiles, char *request_body)
     break;
   // TODO: Implement this for the second assignment
   case DOWNLOAD_PROFILE_IMAGE:
-    printf("Wait for Peekaboo 2.0 release.\n");
+    fprintf(stderr, "(pid %d) SERVER >>> Wait for Peekaboo 2.0 release.\n", pid);
     response = NULL;
     break;
 
@@ -92,7 +94,7 @@ char *general_serializer(Profile *profiles, char *request_body)
     break;
 
   default:
-    printf("Unknown operation! Please check your request.");
+    fprintf(stderr, "(pid %d) SERVER >>> Unknown operation! Please check your request.", pid);
     break;
   }
 

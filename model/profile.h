@@ -4,7 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct profile {
+// Struct to store profile information
+struct profile
+{
     char email[100];
     char name[65];
     char last_name[65];
@@ -12,7 +14,7 @@ struct profile {
     char course[100];
     int year_of_degree;
     char skills[300]; // comma separated list of skills
-    char image[200]; // path to the image
+    char image[200];  // path to the image
 };
 
 typedef struct profile Profile;
