@@ -3,8 +3,8 @@
 CC = gcc
 CFLAGS = -Wall -Werror -lsqlite3
 
-server: clean main.o orchestrator.o general_serializer.o user_serializer.o admin_serializer.o database.o profile.o profile_to_json.o cjson.o email_validator.o sha1.o
-	$(CC) -o ../bin/server main.o orchestrator.o general_serializer.o cjson.o user_serializer.o admin_serializer.o database.o profile.o profile_to_json.o email_validator.o sha1.o $(CFLAGS)
+server: clean main.o orchestrator.o general_serializer.o user_serializer.o admin_serializer.o database.o profile.o user_message.o cjson.o email_validator.o sha1.o
+	$(CC) -o ../bin/server main.o orchestrator.o general_serializer.o cjson.o user_serializer.o admin_serializer.o database.o profile.o user_message.o email_validator.o sha1.o $(CFLAGS)
 
 main.o: main.c
 	$(CC) -c main.c -o main.o
@@ -21,8 +21,8 @@ user_serializer.o:
 admin_serializer.o: 
 	$(CC) -c serializers/admin_serializer.c -o admin_serializer.o
 
-profile_to_json.o:
-	$(CC) -c ../utils/profile_to_json.c -o profile_to_json.o 
+user_message.o:
+	$(CC) -c ../utils/user_message.c -o user_message.o 
 
 database.o:
 	$(CC) -c database/database.c -o database.o

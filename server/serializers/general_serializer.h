@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "../../lib/cJSON.h"
 
@@ -12,6 +13,6 @@
 
 // Serializer to make json parsing and choice the correct serializer function
 // Returns a response with a json string
-char* general_serializer(Profile *profiles, char* request_body);
+char *general_serializer(Profile *profiles, char *request_body);
 
 #endif

@@ -14,7 +14,8 @@ int check_email_format(char *email)
 
   if (is_valid != 0)
   {
-    printf("Regex compilation failed\n");
+    int pid = getpid();
+    fprintf(stderr, "(pid %d) SERVER >>> Regex compilation failed\n", pid);
     return -1;
   }
 

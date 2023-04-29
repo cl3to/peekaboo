@@ -6,6 +6,7 @@ typedef enum OperationCode
 {
     // 0- Used to indicate that the user wishes to exit the program.
     EXIT = 0,
+
     // USER ACTIONS
     // 1- Used to list all people (email and name) who have graduated in a certain course.
     LIST_BY_COURSE = 1,
@@ -36,6 +37,8 @@ typedef enum StatusCode
 {
     // Status code for successful action on the server
     SUCCESS = 200,
+
+    // ERROR CODES
     // Status code for generic failure action on the server
     FAILURE = 400,
     // Status code for invalid password
@@ -46,11 +49,11 @@ typedef enum StatusCode
     REGISTRATION_FAILED = 403,
     // Status code for failed profile removal
     REMOVAL_FAILED = 404,
-    
+
 } StatusCode;
 
 // Some constants
-#define MAXDATASIZE 64 * 1024   // max number of bytes we can get at once
+#define MAXDATASIZE 64 * 1024   // Max number of bytes we can get at once
 #define PORT "4527"             // Peekaboo port number
 #define SESSION_TOKEN_LENGTH 42 // Session token length
 
