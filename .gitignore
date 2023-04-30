@@ -62,3 +62,4 @@ dkms.conf
 # Binary files folder
 bin/*
 obj/*.o
+*.pwd
