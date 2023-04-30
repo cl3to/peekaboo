@@ -1,4 +1,18 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+#include <string.h>
+#include <netdb.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+
+#include "../../utils/constants.h"
 #include "stub.h"
+
+#define BUFFER_SIZE 1500
 
 // Check if the received message is valid
 // Parameters:
@@ -9,7 +23,7 @@
 void check_received_message(char *message, int *depth, int start, int end)
 {
     char c;
-    for(int i = start; i < end; i++)
+    for (int i = start; i < end; i++)
     {
         c = message[i];
         if (c == '{' || c == '[')
@@ -18,7 +32,6 @@ void check_received_message(char *message, int *depth, int start, int end)
             (*depth)--;
     }
 }
-
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
@@ -31,9 +44,8 @@ void *get_in_addr(struct sockaddr *sa)
     return &(((struct sockaddr_in6 *)sa)->sin6_addr);
 }
 
-char* make_request(char *request)
+int client_connect(ConnectionHandler *self)
 {
-    int sockfd, numbytes;
     struct addrinfo hints, *servinfo, *p;
     int rv;
     char s[INET6_ADDRSTRLEN];
@@ -42,28 +54,28 @@ char* make_request(char *request)
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
 
-    char *server_ip = getenv("SERVER_IP");
+    // char *server_ip = getenv("SERVER_IP");
 
-    if ((rv = getaddrinfo(server_ip, PORT, &hints, &servinfo)) != 0)
+    if ((rv = getaddrinfo(self->server_ip, self->server_port, &hints, &servinfo)) != 0)
     {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
-        return NULL;
+        return -1;
     }
 
     // loop through all the results and connect to the first we can
     for (p = servinfo; p != NULL; p = p->ai_next)
     {
-        if ((sockfd = socket(p->ai_family, p->ai_socktype,
-                             p->ai_protocol)) == -1)
+        if ((self->sockfd = socket(p->ai_family, p->ai_socktype,
+                                   p->ai_protocol)) == -1)
         {
-            perror("client: socket");
+            perror("client");
             continue;
         }
 
-        if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1)
+        if (connect(self->sockfd, p->ai_addr, p->ai_addrlen) == -1)
         {
-            close(sockfd);
-            perror("client: connect");
+            close(self->sockfd);
+            perror("client");
             continue;
         }
 
@@ -73,7 +85,7 @@ char* make_request(char *request)
     if (p == NULL)
     {
         fprintf(stderr, "client: failed to connect\n");
-        return NULL;
+        return -1;
     }
 
     inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr),
@@ -82,44 +94,60 @@ char* make_request(char *request)
     // fprintf(stderr, "client: connecting to %s\n", s);
 
     freeaddrinfo(servinfo); // all done with this structure
+    return 0;
+}
 
+int client_send(ConnectionHandler *self, char *message)
+{
     // Send data to server
-    int data_len = strlen(request);
-    if ((numbytes = send(sockfd, request, data_len, 0)) == -1)
-        perror("send");
+    int message_length = strlen(message);
+    int numbytes = send(self->sockfd, message, message_length, 0);
 
+    if (numbytes == -1)
+    {
+        perror("send");
+        return -1;
+    }
     // fprintf(stderr, "CLIENT SIDE --> send bytes: %d\n", numbytes);
-    
-    char* response = calloc(MAXDATASIZE, 1); // Allocating memory for response
+    return 0;
+}
+
+char* client_receive(ConnectionHandler *self)
+{
+    char *response = calloc(MAXDATASIZE, 1); // Allocating memory for response
     char buffer[BUFFER_SIZE] = {0};
-    int depth = 0, start = 0, end = 0, received = 0, recall = 10;
+    int depth = 0, start = 0, end = 0, numbytes = 0;
 
     // Receive data from server
-    while(!received)
+    do
     {
-        numbytes = recv(sockfd, buffer, BUFFER_SIZE, 0);
+        numbytes = recv(self->sockfd, buffer, BUFFER_SIZE, 0);
         if (numbytes < 0)
         {
             perror("recv");
-            exit(1);
+            break;
         }
-
         // fprintf(stderr, "CLIENT SIDE --> receve bytes: %d\n", numbytes);
 
         start = end;
         end += numbytes;
         strncpy(response + start, buffer, numbytes);
         check_received_message(response, &depth, start, end);
-
-        if (depth == 0)
-            received = 1;
-
-        recall = (numbytes == 0) ? recall - 1 : recall;
-        if (recall == 0)
-            break;
     }
+    while (depth);
 
-    close(sockfd);
+    return response;
+}
 
+void client_disconnect(ConnectionHandler *self)
+{
+    close(self->sockfd);
+}
+
+char *make_request(ConnectionHandler *connection, char *request)
+{
+    char *response;
+    connection->send(connection, request);
+    response = connection->receive(connection);
     return response;
 }
