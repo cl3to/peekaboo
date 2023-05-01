@@ -33,7 +33,6 @@ echo "=============================="
 
 # Create database
 echo "Creating database..."
-# TODO - create database
 
 # Create a new SQLite3 database file named "profiles.db"
 sqlite3 bin/profiles.db <<EOF

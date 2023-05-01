@@ -1,6 +1,6 @@
 # Flags
 CC = gcc
-CFLAGS = -Wall -Werror
+CFLAGS = -Wall -Werror -pthread -ldl
 
 # Variables
 OBJDIR = ../obj/server
@@ -11,7 +11,7 @@ SERVER_OBJTS = $(OBJDIR)/main.o $(OBJDIR)/orchestrator.o $(OBJDIR)/general_seria
 			   $(OBJDIR)/email_validator.o $(OBJDIR)/sha1.o $(OBJDIR)/sqlite3.o
 
 server: clean $(SERVER_OBJTS)
-	$(CC) $(CFLAGS) -o $(BINDIR)/server $(SERVER_OBJTS)
+	$(CC) -o $(BINDIR)/server $(SERVER_OBJTS) $(CFLAGS)
 
 $(OBJDIR)/main.o: main.c
 	$(CC) -c main.c -o $(OBJDIR)/main.o
