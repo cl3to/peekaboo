@@ -31,7 +31,7 @@ $(OBJDIR)/tui.o:
 	$(CC) $(CFLAGS) -c ui/peekaboo_tui.c -o $@
 
 $(OBJDIR)/cjson.o:
-	$(CC) -c ../lib/cJSON.c -o $@
+	$(CC) -c ../lib/cJSON/cJSON.c -o $@
 
 $(OBJDIR)/email_validator.o:
 	$(CC) -c ../utils/email_validator.c -o $@

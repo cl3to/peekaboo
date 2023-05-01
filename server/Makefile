@@ -1,6 +1,6 @@
 # Flags
 CC = gcc
-CFLAGS = -Wall -Werror -lsqlite3
+CFLAGS = -Wall -Werror
 
 # Variables
 OBJDIR = ../obj/server
@@ -8,7 +8,7 @@ BINDIR = ../bin
 SERVER_OBJTS = $(OBJDIR)/main.o $(OBJDIR)/orchestrator.o $(OBJDIR)/general_serializer.o \
                $(OBJDIR)/user_serializer.o $(OBJDIR)/admin_serializer.o $(OBJDIR)/database.o \
 			   $(OBJDIR)/profile.o $(OBJDIR)/user_message.o $(OBJDIR)/cjson.o \
-			   $(OBJDIR)/email_validator.o $(OBJDIR)/sha1.o
+			   $(OBJDIR)/email_validator.o $(OBJDIR)/sha1.o $(OBJDIR)/sqlite3.o
 
 server: clean $(SERVER_OBJTS)
 	$(CC) $(CFLAGS) -o $(BINDIR)/server $(SERVER_OBJTS)
@@ -41,10 +41,13 @@ $(OBJDIR)/email_validator.o:
 	$(CC) -c ../utils/email_validator.c -o $@
 
 $(OBJDIR)/cjson.o:
-	$(CC) -c ../lib/cJSON.c -o $@
+	$(CC) -c ../lib/cJSON/cJSON.c -o $@
 
 $(OBJDIR)/sha1.o:
 	$(CC) -c ../lib/sha1-c/sha1.c -o $@
+
+$(OBJDIR)/sqlite3.o:
+	$(CC) -c ../lib/sqlite3/sqlite3.c -o $@
 
 # remove object files and executable when user executes "make clean"
 clean:

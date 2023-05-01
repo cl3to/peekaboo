@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include "../../lib/cJSON.h"
+#include "../../lib/cJSON/cJSON.h"
 
 #include "serializer.h"
 
