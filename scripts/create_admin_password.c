@@ -36,7 +36,7 @@ int main()
 
     // Open file for writing
     FILE *fp;
-    fp = fopen("../password_sha1.pwd", "wb");
+    fp = fopen("password_sha1.pwd", "wb");
 
     if (fp == NULL)
     {
