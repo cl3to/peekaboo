@@ -1,11 +1,15 @@
 #include <stdio.h>
-#include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #include "peekaboo_tui.h"
+#include "../../utils/constants.h"
 #include "../serializer/serializer.h"
-#include "../stub/stub.h"
 #include "../../utils/email_validator.h"
+
+void clear_screen() {
+    system("clear");
+}
 
 void welcome_messages(void)
 {
@@ -13,7 +17,54 @@ void welcome_messages(void)
     printf("O Peekaboo é um banco de dados de perfis de pessoas.\n");
 }
 
-void peekaboo_tui(int argc, char **argv)
+void print_profile(Profile *profile, int data_len, OperationCode operation_code)
+{
+    if (data_len == 0)
+    {
+        printf("-----------------------------------------\n");
+        printf("Nenhum perfil encontrado!\n");
+        printf("-----------------------------------------\n");
+        return;
+    }
+
+    for (int i = 0; i < data_len; i++)
+    {
+        printf("-------------PROFILE (%d)----------------\n", i + 1);
+        printf("Email: %s\n", profile[i].email);
+        printf("Nome: %s\n", profile[i].name);
+        printf("Sobrenome: %s\n", profile[i].last_name);
+        if (
+            operation_code == LIST_BY_YEAR ||
+            operation_code == LIST_ALL_PROFILES ||
+            operation_code == GET_PROFILE_BY_EMAIL)
+            printf("Formação Acadêmica: %s\n", profile[i].course);
+
+        if (
+            operation_code == LIST_ALL_PROFILES ||
+            operation_code == GET_PROFILE_BY_EMAIL)
+        {
+            printf("Ano de Formação: %d\n", profile[i].year_of_degree);
+            printf("Cidade: %s\n", profile[i].city);
+            printf("Habilidades: %s\n", profile[i].skills);
+        }
+    }
+
+    printf("-----------------------------------------\n");
+}
+
+void email_input(char *email)
+{
+        printf("Digite o email: ");
+        scanf(" %s", email);
+        while(check_email_format(email) != 0)
+        {
+            printf("Email Invalido!\n");
+            printf("Digite novamente o email: ");
+            scanf(" %s", email);
+        }
+}
+
+void peekaboo_tui(ConnectionHandler *conn_handler)
 {
     int option;
     char *session_token = NULL;
@@ -77,14 +128,7 @@ void peekaboo_tui(int argc, char **argv)
         }
         else if (option == 5)
         {
-            printf("Digite o email: ");
-            scanf(" %s", input);
-            while(check_email_format(input) != 0)
-            {
-                printf("Email Invalido!\n");
-                printf("Digite novamente o email: ");
-                scanf(" %s", input);
-            }
+            email_input(input);
             printf("Obtendo o perfil de %s...\n", input);
             request = serialize_gp_operation(input);
             operation_code = GET_PROFILE_BY_EMAIL;
@@ -94,19 +138,7 @@ void peekaboo_tui(int argc, char **argv)
             char *passwd = NULL;
             passwd = getpass("Digite a senha: ");
             request = serialize_login_operation(passwd);
-            operation_code = LOGIN;
             printf("Logando como administrador...\n");
-            response = make_request(request);
-            session_token = deserialize_authentication(response);
-            if (session_token)
-                printf("Login realizado com sucesso!\n");
-            else
-                printf("Senha incorreta!\n");
-
-            free(request);
-            free(response);
-            request = NULL;
-            response = NULL;
             operation_code = LOGIN;
         }
         else if (session_token)
@@ -114,14 +146,7 @@ void peekaboo_tui(int argc, char **argv)
             if (option == 6)
             {
                 Profile new_profile;
-                printf("Digite o email: ");
-                scanf(" %s", new_profile.email);
-                while(check_email_format(new_profile.email) != 0)
-                {
-                    printf("Email Invalido!\n");
-                    printf("Digite novamente o email: ");
-                    scanf(" %s", new_profile.email);
-                }
+                email_input(new_profile.email);
                 printf("Digite o nome: ");
                 scanf(" %[^\n]", new_profile.name);
                 printf("Digite o sobrenome: ");
@@ -138,20 +163,13 @@ void peekaboo_tui(int argc, char **argv)
                 printf("Cadastrando o perfil de %s...\n", new_profile.email);
                 request = serialize_cp_operation(&new_profile, session_token);
                 operation_code = NEW_PROFILE;
-
             }
             else if (option == 7)
             {
-                printf("Digite o email: ");
-                scanf(" %s", input);
-                while(check_email_format(input) != 0)
-                {
-                    printf("Email Invalido!\n");
-                    printf("Digite novamente o email: ");
-                    scanf(" %s", input);
-                }
+                email_input(input);
                 printf("Removendo o perfil de %s...\n", input);
                 request = serialize_rp_operation(input, session_token);
+                operation_code = REMOVE_PROFILE_BY_EMAIL;
             }
             else if (option == 8)
             {
@@ -164,6 +182,8 @@ void peekaboo_tui(int argc, char **argv)
         else if (option == 0)
         {
             printf("Encerrando o programa...\n");
+            conn_handler->disconnect(conn_handler);
+            operation_code = EXIT;
         }
         else
         {
@@ -171,9 +191,11 @@ void peekaboo_tui(int argc, char **argv)
             printf("Escolha uma opção válida!\n");
         }
 
+        clear_screen();
+
         if (request)
         {
-            response = make_request(request);
+            response = make_request(conn_handler, request);
             
             if (operation_code <= GET_PROFILE_BY_EMAIL)
             {
@@ -183,13 +205,28 @@ void peekaboo_tui(int argc, char **argv)
                 free(profiles);
 
             }
+            else if (operation_code == LOGIN)
+            {
+                printf("-----------------------------------------\n");
+                session_token = deserialize_authentication(response);
+                if (session_token)
+                    printf("Login realizado com sucesso!\n");
+                else
+                    printf("Senha incorreta!\n");
+                printf("-----------------------------------------\n");
+                
+            }
             else if (session_token)
             {
                 int status;
                 char *status_message = deserialize_admin_operation_response(response, &status);
 
-                if (status_message)
+                printf("-----------------------------------------\n");
+                if (status == 200)
+                    printf("Operação realizada com sucesso!\n");
+                else
                     printf("%s\n", status_message);
+                printf("-----------------------------------------\n");
 
                 if (operation_code == LOGOUT && status == 200)
                     session_token = NULL;
@@ -202,40 +239,12 @@ void peekaboo_tui(int argc, char **argv)
             request = NULL;
             response = NULL;
         }
-    } while (option != 0);
+    }
+    while (option != 0);
 }
 
-void print_profile(Profile *profile, int data_len, OperationCode operation_code)
+void fail_connection()
 {
-    if (data_len == 0)
-    {
-        printf("-----------------------------------------\n");
-        printf("Nenhum perfil encontrado!\n");
-        printf("-----------------------------------------\n");
-        return;
-    }
-
-    for (int i = 0; i < data_len; i++)
-    {
-        printf("-------------PROFILE (%d)----------------\n", i + 1);
-        printf("Email: %s\n", profile[i].email);
-        printf("Nome: %s\n", profile[i].name);
-        printf("Sobrenome: %s\n", profile[i].last_name);
-        if (
-            operation_code == LIST_BY_YEAR ||
-            operation_code == LIST_ALL_PROFILES ||
-            operation_code == GET_PROFILE_BY_EMAIL)
-            printf("Formação Acadêmica: %s\n", profile[i].course);
-
-        if (
-            operation_code == LIST_ALL_PROFILES ||
-            operation_code == GET_PROFILE_BY_EMAIL)
-        {
-            printf("Ano de Formação: %d\n", profile[i].year_of_degree);
-            printf("Cidade: %s\n", profile[i].city);
-            printf("Habilidades: %s\n", profile[i].skills);
-        }
-    }
-
-    printf("-----------------------------------------\n");
+    printf("Não foi possível estabelecer uma conexão com o servidor!\n");
+    printf("Encerrando o programa...\n");
 }

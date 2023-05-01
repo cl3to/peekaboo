@@ -2,18 +2,12 @@
 #define PEAKABOO_TUI_H
 
 #include "../../model/profile.h"
-#include "../../utils/constants.h"
+#include "../stub/stub.h"
 
 // Peekaboo TUI
-void peekaboo_tui(int argc, char **argv);
+void peekaboo_tui(ConnectionHandler *conn_handler);
 
-// Peekaboo TUI - User Mode
-void user_mode_tui();
-
-// Peekaboo TUI - Admin Mode
-void admin_mode_tui();
-
-// Peekaboo TUI - Print Profile
-void print_profile(Profile *profile, int data_len, OperationCode operation_code);
+// Peekaboo TUI - FAIL CONNECTION MESSAGE
+void fail_connection(void);
 
 #endif // PEAKABOO_TUI_H

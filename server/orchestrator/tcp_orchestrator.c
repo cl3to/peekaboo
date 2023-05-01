@@ -164,8 +164,8 @@ void handle_client_requests(int new_fd)
 
         request[request_len] = '\0';
 
-        printf("(pid %d) SERVER >>> Recive request with %d bytes\n", pid, request_len);
-        printf("(pid %d) SERVER >>> Recive request message: '%s'\n", pid, request);
+        printf("(pid %d) SERVER >>> Receive request with %d bytes\n", pid, request_len);
+        printf("(pid %d) SERVER >>> Receive request message: '%s'\n", pid, request);
 
         // Handle request from client using serializers
         response = general_serializer(profiles, request);

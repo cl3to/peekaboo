@@ -6,7 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "../../lib/cJSON.h"
+#include "../../lib/cJSON/cJSON.h"
 
 #include "admin_serializer.h"
 #include "user_serializer.h"

@@ -4,8 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sqlite3.h>
 #include <unistd.h>
+
+#include "../../lib/sqlite3/sqlite3.h"
 
 #include "../../model/profile.h"
 
