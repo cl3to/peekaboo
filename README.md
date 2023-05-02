@@ -3,6 +3,11 @@ Projeto da Disciplina MC833 - Programação de Redes de Computadores
 
 O **peekaboo** é uma aplicação simples com o fim de gerenciar perfis profissionais e acadêmicos de pessoas. A princípio o software opera sobre o protocolo TCP e em breve também será compatível com UDP. O nome **peekaboo** foi uma sugestão do ChatGPT com base nos requisitos do sistema e faz referência a brincadeira de esconde-esconde feita com crianças, fazendo alusão às informações dos perfis que a aplicação revela.
 
+## Developers
+
+- Cristiano Sampaio Pinheiro ([CristianoS16](https://github.com/CristianoS16))
+- Jhonatan Cléto ([Cl3TO](https://github.com/Cl3TO))
+
 ## Build
 
 Para fazer o `build` da aplicação basta utilizar o seguinte procedimento:
