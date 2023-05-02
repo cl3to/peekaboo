@@ -34,7 +34,4 @@ Ainda no diretório `bin`, inicie o binário do cliente, indicando opcionalmente
 
 No diretório de exemplos, deixamos um vídeo ilustrando o funcionamento do [**peekaboo**](examples/peekaboo_demo.mp4).
 
-<video width="640" height="480" controls>
-  <source src="examples/peekaboo_demo.mp4" type="video/mp4">
-  Seu navegador não suporta a tag de vídeo.
-</video>
+![**peekaboo**](examples/peekaboo_demo.gif)
