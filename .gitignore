@@ -55,3 +55,11 @@ dkms.conf
 *.sql
 *.sqlite
 *.db
+
+# Vscode
+.vscode/
+
+# Binary files folder
+bin/*
+obj/*.o
+*.pwd
