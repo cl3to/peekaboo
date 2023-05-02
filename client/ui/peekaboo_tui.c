@@ -19,6 +19,7 @@ void welcome_messages(void)
 
 void print_profile(Profile *profile, int data_len, OperationCode operation_code)
 {
+    printf("Resultado da operação %d:\n", (int) operation_code);
     if (data_len == 0)
     {
         printf("-----------------------------------------\n");
@@ -66,7 +67,7 @@ void email_input(char *email)
 
 void peekaboo_tui(ConnectionHandler *conn_handler)
 {
-    int option;
+    int option = -1;
     char *session_token = NULL;
 
     OperationCode operation_code;
@@ -93,7 +94,7 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
         printf("0 - Encerrar o programa?\n");
         printf("Digite a opção desejada: ");
 
-        scanf("%d", &option);
+        scanf(" %d", &option);
 
         if (option == 1)
         {
@@ -181,8 +182,6 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
 
         else if (option == 0)
         {
-            printf("Encerrando o programa...\n");
-            conn_handler->disconnect(conn_handler);
             operation_code = EXIT;
         }
         else
@@ -241,10 +240,13 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
         }
     }
     while (option != 0);
+
+    printf("Encerrando o peekaboo...\n");
+    
 }
 
 void fail_connection()
 {
     printf("Não foi possível estabelecer uma conexão com o servidor!\n");
-    printf("Encerrando o programa...\n");
+    printf("Encerrando o peekaboo...\n");
 }
