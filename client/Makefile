@@ -24,7 +24,7 @@ $(OBJDIR)/serializer.o:
 
 # Build the stub object file
 $(OBJDIR)/stub.o:
-	$(CC) $(CFLAGS) -c stub/tcp_stub.c -o $@
+	$(CC) $(CFLAGS) -c stub/udp_stub.c -o $@
 
 # Build the tui object file
 $(OBJDIR)/tui.o:
