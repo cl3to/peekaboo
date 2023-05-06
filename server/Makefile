@@ -17,7 +17,7 @@ $(OBJDIR)/main.o: main.c
 	$(CC) -c main.c -o $(OBJDIR)/main.o
 
 $(OBJDIR)/orchestrator.o:
-	$(CC) -c orchestrator/tcp_orchestrator.c -o $@
+	$(CC) -c orchestrator/udp_orchestrator.c -o $@
 
 $(OBJDIR)/general_serializer.o: $(OBJDIR)/cjson.o
 	$(CC) -c serializers/general_serializer.c -o $@
