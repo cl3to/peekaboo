@@ -20,8 +20,7 @@
 #include "../../utils/constants.h"
 
 // how many pending connections queue will hold on the server
-#define BACKLOG 10 
-
+#define BACKLOG 10
 
 // Collects any terminated child processes to prevent them from becoming zombies
 // Return is void
@@ -40,19 +39,5 @@ int setup_socket(struct addrinfo *servinfo);
 // Returns 0 if the segment is already
 // Returns -1 on failure
 int create_shared_memory_buffer();
-
-// Sent all data in more than one dataframe if necessary
-// Returns 0 if all data was sent
-// Returns -1 on failure
-int send_all_data(int s, char *buf, int *len);
-
-// Handle the requests from the client
-// Return is void
-void handle_client_requests(int new_fd);
-
-// Handle connections using TCP or UDP sockets
-// Each orchestrator manages its own connections in its way
-// Returns 0 if everything went well, 1 otherwise
-int connection_loop(void);
 
 #endif

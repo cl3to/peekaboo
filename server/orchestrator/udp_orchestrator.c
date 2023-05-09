@@ -1,49 +1,13 @@
-#include "orchestrator.h"
+#include "udp_orchestrator.h"
 
-#define MAXBUFLEN MAXDATASIZE
-
-void sigchld_handler(int s)
-{
-}
-
-int setup_socket(struct addrinfo *servinfo)
-{
-    return 0;
-}
-
-int create_shared_memory_buffer()
-{
-    return 0;
-}
-
-int sent_all_data(int s, char *buf, int *len)
-{
-    return 0;
-}
-
-void handle_client_requests(int new_fd)
-{
-}
-
-// get sockaddr, IPv4 or IPv6:
-void *get_in_addr(struct sockaddr *sa)
-{
-    if (sa->sa_family == AF_INET)
-    {
-        return &(((struct sockaddr_in *)sa)->sin_addr);
-    }
-
-    return &(((struct sockaddr_in6 *)sa)->sin6_addr);
-}
-
-int connection_loop(void)
+int udp_connection_loop(void)
 {
     int sockfd;
     struct addrinfo hints, *servinfo, *p;
     int rv;
     int numbytes;
     struct sockaddr_storage their_addr;
-    char buf[MAXBUFLEN];
+    char buf[MAXDATASIZE];
     socklen_t addr_len;
     char s[INET6_ADDRSTRLEN];
 
@@ -95,7 +59,7 @@ int connection_loop(void)
     while (1)
     {
         addr_len = sizeof their_addr;
-        if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN - 1, 0,
+        if ((numbytes = recvfrom(sockfd, buf, MAXDATASIZE - 1, 0,
                                  (struct sockaddr *)&their_addr, &addr_len)) == -1)
         {
             perror("recvfrom");
@@ -117,9 +81,9 @@ int connection_loop(void)
         response_len = strlen(response);
 
         printf("listener: sending response \"%s\"\n", response);
-        
+
         if ((numbytes = sendto(sockfd, response, response_len, 0,
-                              (struct sockaddr *)&their_addr, addr_len)) == -1)
+                               (struct sockaddr *)&their_addr, addr_len)) == -1)
         {
 
             perror("sendto");
