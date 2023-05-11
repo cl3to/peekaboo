@@ -1,7 +1,9 @@
 #include "tcp_orchestrator.h"
 
 // Sent all data in more than one dataframe if necessary
-int send_all_data(int s, char *buf, int *len)
+// Returns 0 if all data was sent
+// Returns -1 on failure
+int _send_all_data(int s, char *buf, int *len)
 {
     int total = 0;        // how many bytes we've sent
     int bytesleft = *len; // how many we have left to send
@@ -24,7 +26,8 @@ int send_all_data(int s, char *buf, int *len)
 }
 
 // Handle the connection with the client
-void handle_client_requests(int new_fd)
+// Return is void
+void _handle_tcp_client_requests(int new_fd)
 {
     // Create profiles variables
     // The BUFFER_SIZE limit the maximum number of profiles in the system
@@ -79,7 +82,7 @@ void handle_client_requests(int new_fd)
         printf("(pid %d) SERVER >>> Sending response message: '%s'\n", pid, response);
 
         // Send response message
-        if (send_all_data(new_fd, response, &response_len) == -1)
+        if (_send_all_data(new_fd, response, &response_len) == -1)
         {
             printf("(pid %d) SERVER >>> ", pid);
             perror("sendall");
@@ -98,6 +101,8 @@ int tcp_connection_loop(void)
     struct sigaction sa;
     char s[INET6_ADDRSTRLEN];
     int rv;
+    // Process ID for prints log of the server
+    int pid = getpid();
 
     // Define socket parameters
     memset(&hints, 0, sizeof hints);
@@ -130,7 +135,7 @@ int tcp_connection_loop(void)
         return 1;
     }
 
-    printf("server: waiting for connections...\n");
+    printf("(pid %d) SERVER >>> waiting for connections...\n", pid);
 
     // Create the shared memory segment to store password hash
     if (create_shared_memory_buffer() == -1)
@@ -153,7 +158,7 @@ int tcp_connection_loop(void)
         inet_ntop(their_addr.ss_family,
                   get_in_addr((struct sockaddr *)&their_addr),
                   s, sizeof s);
-        printf("server: got connection from %s\n", s);
+        printf("(pid %d) SERVER >>> got connection from %s\n", pid, s);
 
         if (!fork())
         {
@@ -161,7 +166,7 @@ int tcp_connection_loop(void)
             close(sockfd); // child doesn't need the listener
 
             // handle with this connection in this process
-            handle_client_requests(new_fd);
+            _handle_tcp_client_requests(new_fd);
 
             // close the socker with the client
             close(new_fd);

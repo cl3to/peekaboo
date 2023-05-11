@@ -22,6 +22,9 @@
 // how many pending connections queue will hold on the server
 #define BACKLOG 10
 
+// Global variables to manager the type of connection
+extern int should_use_tcp;
+
 // Collects any terminated child processes to prevent them from becoming zombies
 // Return is void
 void sigchld_handler(int s);

@@ -42,9 +42,9 @@ int setup_socket(struct addrinfo *servinfo)
       continue;
     }
 
-    // Allow the socket to reuse the address
-    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes,
-                   sizeof(int)) == -1)
+    // Allow the socket to reuse the address --> Only for TCP connection
+    if (should_use_tcp && setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes,
+                                     sizeof(int)) == -1)
     {
       perror("setsockopt");
       return 1;
