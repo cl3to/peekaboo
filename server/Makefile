@@ -5,10 +5,11 @@ CFLAGS = -Wall -Werror -pthread -ldl
 # Variables
 OBJDIR = ../obj/server
 BINDIR = ../bin
-SERVER_OBJTS = $(OBJDIR)/main.o $(OBJDIR)/orchestrator.o $(OBJDIR)/general_serializer.o \
-               $(OBJDIR)/user_serializer.o $(OBJDIR)/admin_serializer.o $(OBJDIR)/database.o \
-			   $(OBJDIR)/profile.o $(OBJDIR)/user_message.o $(OBJDIR)/cjson.o \
-			   $(OBJDIR)/email_validator.o $(OBJDIR)/sha1.o $(OBJDIR)/sqlite3.o
+SERVER_OBJTS = $(OBJDIR)/main.o $(OBJDIR)/tcp_orchestrator.o $(OBJDIR)/udp_orchestrator.o \
+							$(OBJDIR)/orchestrator.o $(OBJDIR)/general_serializer.o $(OBJDIR)/user_serializer.o \
+							$(OBJDIR)/admin_serializer.o $(OBJDIR)/database.o $(OBJDIR)/profile.o \
+							$(OBJDIR)/user_message.o $(OBJDIR)/cjson.o $(OBJDIR)/email_validator.o \
+							$(OBJDIR)/sha1.o $(OBJDIR)/sqlite3.o
 
 server: clean $(SERVER_OBJTS)
 	$(CC) -o $(BINDIR)/server $(SERVER_OBJTS) $(CFLAGS)
@@ -16,8 +17,14 @@ server: clean $(SERVER_OBJTS)
 $(OBJDIR)/main.o: main.c
 	$(CC) -c main.c -o $(OBJDIR)/main.o
 
-$(OBJDIR)/orchestrator.o:
+$(OBJDIR)/udp_orchestrator.o: $(OBJDIR)/orchestrator.o
 	$(CC) -c orchestrator/udp_orchestrator.c -o $@
+
+$(OBJDIR)/tcp_orchestrator.o: $(OBJDIR)/orchestrator.o
+	$(CC) -c orchestrator/tcp_orchestrator.c -o $@
+
+$(OBJDIR)/orchestrator.o:
+	$(CC) -c orchestrator/orchestrator.c -o $@
 
 $(OBJDIR)/general_serializer.o: $(OBJDIR)/cjson.o
 	$(CC) -c serializers/general_serializer.c -o $@
