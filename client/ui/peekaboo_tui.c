@@ -250,3 +250,8 @@ void fail_connection()
     printf("Não foi possível estabelecer uma conexão com o servidor!\n");
     printf("Encerrando o peekaboo...\n");
 }
+
+void peekaboo_tui_message(char *message)
+{
+    printf("%s\n", message);
+}
