@@ -53,12 +53,14 @@ typedef enum StatusCode
 } StatusCode;
 
 // Some constants
-#define OP_CODE_SIZE 1     
+#define OP_CODE_SIZE 1
 // TODO: Improve the name of this const                               // Bytes for the operation code in the message
 #define MESSAGE_BODY_SIZE_SIZE 4                          // Bytes to store the JSON's end in the message
 #define HEADER_SIZE OP_CODE_SIZE + MESSAGE_BODY_SIZE_SIZE // Header size of the message, in bytes
-#define MAXDATASIZE 64 * 1024                             // Max number of bytes we can get at once
-#define PORT "4527"                                       // Peekaboo port number
-#define SESSION_TOKEN_LENGTH 42                           // Session token length
+#define IMAGES_DIRECTORY "images/"
+#define MAX_LENGTH_IMAGE_NAME 111 // 7("images/")+100(max email size)+4(".jpg")
+#define MAXDATASIZE 64 * 1024     // Max number of bytes we can get at once
+#define PORT "4527"               // Peekaboo port number
+#define SESSION_TOKEN_LENGTH 42   // Session token length
 
 #endif

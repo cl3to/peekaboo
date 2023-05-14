@@ -32,23 +32,19 @@ int validate_session_token(char *session_token);
 char *validate_password(char *password);
 
 // Login to the system's administrative area
-// Returns a session token if the login is valid
-// Returns NULL if the login is invalid
+// Returns a admin response in JSON format with a Status Code of success (200) or error (>=400)
 char *login_with_password(char *password);
 
 // Logout from the system's administrative area
-// Returns 0 if the session was finished
-// Returns -1 if there was an error in the session finalization
+// Returns a admin response in JSON format with a Status Code of success (200) or error (>=400)
 char *logout(char *session_token);
 
 // Create a new profile
-// Returns 0 if the profile was created
-// Returns -1 if there was an error
-char *create_new_profile(char *session_token, char *email, char *name, char *last_name, char *city, char *course, int year_of_degree, char *skills);
+// Returns a admin response in JSON format with a Status Code of success (200) or error (>=400)
+char *create_new_profile(char *session_token, char *email, char *name, char *last_name, char *city, char *course, int year_of_degree, char *skills, char *image, int image_size);
 
 // Remove a profile filter from email
-// Returns 0 if the profile was removed
-// Returns -1 if there was an error
+// Returns a admin response in JSON format with a Status Code of success (200) or error (>=400)
 char *remove_profile_by_email(char *session_token, char *email);
 
 #endif

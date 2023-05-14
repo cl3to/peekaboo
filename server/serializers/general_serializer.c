@@ -33,10 +33,8 @@ char *general_serializer(Profile *profiles, char *request_message)
   cJSON *params_items = cJSON_GetObjectItemCaseSensitive(json, "params");
 
   if (
-      operation_code_item == NULL ||
       params_length_item == NULL ||
       params_items == NULL ||
-      !cJSON_IsNumber(operation_code_item) ||
       !cJSON_IsNumber(params_length_item))
   {
     fprintf(stderr, "(pid %d) SERVER >>> Invalid request\n", pid);
@@ -85,36 +83,6 @@ char *general_serializer(Profile *profiles, char *request_message)
         cJSON_GetObjectItemCaseSensitive(params_items, "email")->valuestring);
     break;
   case NEW_PROFILE:
-  {
-    // TODO: improve this part 
-    char *image_data = request_message + 5 + body_size; // pointer to image data
-    int image_size = (13735 - (sizeof(int) + 1 + body_size));
-    printf("image_size = %d\n", image_size); // compute image size
-
-    // create file with given name
-    char *email = cJSON_GetObjectItemCaseSensitive(params_items, "email")->valuestring;
-    char filepath[50] = "images/";
-    strcat(filepath, email);
-    strcat(filepath, ".jpg");
-    FILE *fp_new = fopen(filepath, "wb");
-    if (fp_new == NULL)
-    {
-      printf("Error opening file for writing\n");
-      exit(1);
-    }
-
-    // write image data to file
-    int bytes_written = fwrite(image_data, sizeof(char), image_size, fp_new);
-    printf("bytes_written = %d\n", bytes_written);
-    if (bytes_written != image_size)
-    {
-      printf("Error writing image data to file\n");
-      exit(1);
-    }
-
-    // close file
-    fclose(fp_new);
-
     response = create_new_profile(
         cJSON_GetObjectItemCaseSensitive(params_items, "session_token")->valuestring,
         cJSON_GetObjectItemCaseSensitive(params_items, "email")->valuestring,
@@ -123,9 +91,10 @@ char *general_serializer(Profile *profiles, char *request_message)
         cJSON_GetObjectItemCaseSensitive(params_items, "city")->valuestring,
         cJSON_GetObjectItemCaseSensitive(params_items, "course")->valuestring,
         cJSON_GetObjectItemCaseSensitive(params_items, "year_of_degree")->valueint,
-        cJSON_GetObjectItemCaseSensitive(params_items, "skills")->valuestring);
+        cJSON_GetObjectItemCaseSensitive(params_items, "skills")->valuestring,
+        request_message + HEADER_SIZE + body_size, // pointer to image data
+        cJSON_GetObjectItemCaseSensitive(params_items, "image")->valueint);
     break;
-  }
   case LOGIN:
     response = login_with_password(
         cJSON_GetObjectItemCaseSensitive(params_items, "password")->valuestring);
