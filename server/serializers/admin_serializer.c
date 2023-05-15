@@ -199,9 +199,8 @@ char *create_new_profile(char *session_token, char *email, char *name, char *las
 
   if (validate_session_token(session_token) == 0)
   {
-
     Profile *profile = new_profile(
-        email, name, last_name, city, course, year_of_degree, skills);
+        email, name, last_name, city, course, year_of_degree, skills, image_size);
 
     // Sabe the profile data and image and check that it was successfully
     if (profile == NULL || store_profile(profile) < 0 || _save_profile_image(email, image, image_size) < 0)

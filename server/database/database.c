@@ -47,7 +47,7 @@ void create_profiles_table()
                               "course VARCHAR(100), "
                               "year_of_degree INTEGER, "
                               "skills VARCHAR(300), "
-                              "image VARCHAR(200)"
+                              "image INTEGER"
                               ");",
                           0, 0, &err_msg);
     if (rc != SQLITE_OK)
@@ -72,7 +72,7 @@ int store_profile(Profile *profile)
     // Construct the SQL statement to insert a new profile
     sql = sqlite3_mprintf(
         "INSERT INTO profiles (email, name, last_name, city, course, year_of_degree, skills, image) "
-        "VALUES ('%q', '%q', '%q', '%q', '%q', %d, '%q', '%q');",
+        "VALUES ('%q', '%q', '%q', '%q', '%q', %d, '%q', '%d');",
         profile->email, profile->name, profile->last_name, profile->city, profile->course,
         profile->year_of_degree, profile->skills, profile->image);
 
@@ -279,11 +279,12 @@ int get_profiles(Profile *profiles)
         profiles[i].year_of_degree = sqlite3_column_int(stmt, 5);
         strcpy(profiles[i].skills, (const char *)sqlite3_column_text(stmt, 6));
 
-        char *image_path = (char *)sqlite3_column_text(stmt, 7);
-        if (image_path != NULL)
-        {
-            strcpy(profiles[i].image, image_path);
-        }
+        //TODO: Remove this in the future
+        // char *image_path = (char *)sqlite3_column_text(stmt, 7);
+        // if (image_path != NULL)
+        // {
+        //     strcpy(profiles[i].image, image_path);
+        // }
         i++;
     }
 
@@ -337,11 +338,12 @@ int get_profile_by_email(Profile *profile, char *email)
     profile->year_of_degree = atoi(result[cols + 5]);
     strcpy(profile->skills, result[cols + 6]);
 
-    char *image_path = result[cols + 7];
-    if (image_path != NULL)
-    {
-        strcpy(profile->image, result[cols + 7]);
-    }
+    //TODO: Remove this in the future
+    // char *image_path = result[cols + 7];
+    // if (image_path != NULL)
+    // {
+    //     strcpy(profile->image, result[cols + 7]);
+    // }
 
     sqlite3_free_table(result);
     sqlite3_close(db);
