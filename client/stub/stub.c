@@ -12,6 +12,8 @@
 #include "../../utils/constants.h"
 #include "stub.h"
 
+#define TIMEOUT 5000 // 5 seconds
+
 // Check if the received message is valid
 // Parameters:
 //  - message: the message to be checked
@@ -84,6 +86,10 @@ int client_connect(ConnectionHandler *self, int socktype)
     }
 
     freeaddrinfo(servinfo); // all done with this structure
+    printf("socket: %d\n", self->sockfd);
+    self->pollfd[0].fd = self->sockfd;
+    self->pollfd[0].events = POLLIN; // check ready-to-read
+
     return 0;
 }
 
@@ -102,7 +108,7 @@ int client_send(ConnectionHandler *self, char *message)
     return 0;
 }
 
-char* client_receive(ConnectionHandler *self)
+char* _receive(ConnectionHandler *connection)
 {
     char *response = calloc(MAXDATASIZE, 1); // Allocating memory for response
     char buffer[MAXDATASIZE] = {0};
@@ -111,7 +117,7 @@ char* client_receive(ConnectionHandler *self)
     // Receive data from server
     do
     {
-        numbytes = recv(self->sockfd, buffer, MAXDATASIZE, 0);
+        numbytes = recv(connection->sockfd, buffer, MAXDATASIZE, 0);
         if (numbytes < 0)
         {
             perror("recv");
@@ -126,6 +132,40 @@ char* client_receive(ConnectionHandler *self)
     }
     while (depth);
 
+    return response;
+}
+
+char* client_receive(ConnectionHandler *self)
+{
+    char *response = NULL;
+    // TODO: Wait for image data packets from server
+    while(1)
+    {
+        int rv = poll(self->pollfd, 1, TIMEOUT);
+        if (rv == -1)
+        {
+            perror("poll"); // error occurred in poll()
+            break;
+        }
+        else if (rv == 0)
+        {
+            printf("Timeout occurred! No data after %d second.\n", TIMEOUT / 1000);
+            break;
+        }
+        else
+        {
+            if (self->pollfd[0].revents & POLLIN)
+            {
+                response =  _receive(self);
+                break;
+            }
+            else if (self->pollfd[0].revents & POLLERR)
+            {
+                printf("Connection closed\n");
+                break;
+            }
+        }
+    }
     return response;
 }
 

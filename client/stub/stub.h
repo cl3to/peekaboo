@@ -1,6 +1,8 @@
 #ifndef STUB_H
 #define STUB_H
 
+#include <poll.h>
+
 // Function prototypes
 typedef struct connection_handler ConnectionHandler;
 typedef int (*connect_function_t)(ConnectionHandler *self, int socktype);
@@ -15,6 +17,7 @@ struct connection_handler
     int sockfd; // socket file descriptor
     char *server_ip;
     char *server_port;
+    struct pollfd pollfd[1]; // monitor the socket with poll()
     connect_function_t connect; // Connect with the server
     send_function_t send;
     receive_function_t receive;
