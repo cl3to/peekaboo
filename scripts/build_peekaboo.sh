@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   course VARCHAR(100),
   year_of_degree INTEGER,
   skills VARCHAR(300),
-  image VARCHAR(200)
+  image INTEGER
 );
 
 -- Import data from the CSV file "profiles.csv"

@@ -144,8 +144,43 @@ char *logout(char *session_token)
   return _make_admin_response(INVALID_SESSION_TOKEN, NULL);
 }
 
+// Save a given image in bin/images using email as name
+// Return 1 for success
+// Return -1 for failure
+int _save_profile_image(char *email, char *image, int image_size)
+{
+  // Process ID for prints log of the server
+  int pid = getpid();
+
+  // Define the image path and name
+  char filepath[MAX_LENGTH_IMAGE_NAME] = IMAGES_DIRECTORY;
+  strcat(filepath, email);
+  strcat(filepath, ".jpg");
+
+  // Create or uptade the image file
+  FILE *fp_new = fopen(filepath, "wb");
+  if (fp_new == NULL)
+  {
+    printf("(pid %d) SERVER >>> Error opening file for save imagem\n", pid);
+    return -1;
+  }
+
+  // write image data to the file
+  int bytes_written = fwrite(image, sizeof(char), image_size, fp_new);
+  if (bytes_written != image_size)
+  {
+    printf("(pid %d) SERVER >>> Error writing image data to file\n", pid);
+    return -1;
+  }
+
+  // close file
+  fclose(fp_new);
+
+  return 1;
+}
+
 // Create a new profile
-char *create_new_profile(char *session_token, char *email, char *name, char *last_name, char *city, char *course, int year_of_degree, char *skills)
+char *create_new_profile(char *session_token, char *email, char *name, char *last_name, char *city, char *course, int year_of_degree, char *skills, char *image, int image_size)
 {
   // Check given perfil parameters
   if (
@@ -155,6 +190,8 @@ char *create_new_profile(char *session_token, char *email, char *name, char *las
       course == NULL ||
       year_of_degree <= 0 ||
       skills == NULL ||
+      image == NULL ||
+      image_size <= 0 ||
       check_email_format(email) != 0)
   {
     return _make_admin_response(REGISTRATION_FAILED, NULL);
@@ -162,11 +199,11 @@ char *create_new_profile(char *session_token, char *email, char *name, char *las
 
   if (validate_session_token(session_token) == 0)
   {
-
     Profile *profile = new_profile(
-        email, name, last_name, city, course, year_of_degree, skills);
+        email, name, last_name, city, course, year_of_degree, skills, image_size);
 
-    if (profile == NULL || store_profile(profile) < 0)
+    // Sabe the profile data and image and check that it was successfully
+    if (profile == NULL || store_profile(profile) < 0 || _save_profile_image(email, image, image_size) < 0)
     {
       return _make_admin_response(REGISTRATION_FAILED, NULL);
     }

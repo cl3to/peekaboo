@@ -1,12 +1,24 @@
 #include "general_serializer.h"
 
 // Serializer to make json parsing and choice the correct serializer function
-char *general_serializer(Profile *profiles, char *request_body)
+char *general_serializer(Profile *profiles, char *request_message)
 {
+  // Process ID for prints log of the server
   int pid = getpid();
 
   int operation_code, params_length;
+  int body_size = 0;
   char *response;
+
+  // Retrieve the message metadata
+  operation_code = (int)request_message[0];
+  memcpy(&body_size, request_message + OP_CODE_SIZE, MESSAGE_BODY_SIZE_SIZE);
+  body_size = ntohl(body_size); // Convert body_size from network byte order to host byte order
+
+  // Retrive the message body in JSON format
+  char *request_body = malloc(body_size + 1);
+  memcpy(request_body, request_message + HEADER_SIZE, body_size);
+  request_body[body_size] = '\0';
 
   // Json parsing using cJSON library
   cJSON *json = cJSON_Parse(request_body);
@@ -17,22 +29,18 @@ char *general_serializer(Profile *profiles, char *request_body)
   }
 
   // Get the values of operation_code, params_length and params
-  cJSON *operation_code_item = cJSON_GetObjectItemCaseSensitive(json, "operation_code");
   cJSON *params_length_item = cJSON_GetObjectItemCaseSensitive(json, "params_length");
   cJSON *params_items = cJSON_GetObjectItemCaseSensitive(json, "params");
 
   if (
-      operation_code_item == NULL ||
       params_length_item == NULL ||
       params_items == NULL ||
-      !cJSON_IsNumber(operation_code_item) ||
       !cJSON_IsNumber(params_length_item))
   {
     fprintf(stderr, "(pid %d) SERVER >>> Invalid request\n", pid);
     return NULL;
   }
 
-  operation_code = operation_code_item->valueint;
   params_length = params_length_item->valueint;
 
   // Choise the right serializer for the operation
@@ -63,6 +71,7 @@ char *general_serializer(Profile *profiles, char *request_body)
     break;
   // TODO: Implement this for the second assignment
   case DOWNLOAD_PROFILE_IMAGE:
+    // TODO: add image size in the first 4 bytes or zero for error message (return only error)
     fprintf(stderr, "(pid %d) SERVER >>> Wait for Peekaboo 2.0 release.\n", pid);
     response = NULL;
     break;
@@ -82,7 +91,9 @@ char *general_serializer(Profile *profiles, char *request_body)
         cJSON_GetObjectItemCaseSensitive(params_items, "city")->valuestring,
         cJSON_GetObjectItemCaseSensitive(params_items, "course")->valuestring,
         cJSON_GetObjectItemCaseSensitive(params_items, "year_of_degree")->valueint,
-        cJSON_GetObjectItemCaseSensitive(params_items, "skills")->valuestring);
+        cJSON_GetObjectItemCaseSensitive(params_items, "skills")->valuestring,
+        request_message + HEADER_SIZE + body_size, // pointer to image data
+        cJSON_GetObjectItemCaseSensitive(params_items, "image")->valueint);
     break;
   case LOGIN:
     response = login_with_password(

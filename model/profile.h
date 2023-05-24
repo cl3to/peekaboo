@@ -14,13 +14,13 @@ struct profile
     char course[100];
     int year_of_degree;
     char skills[300]; // comma separated list of skills
-    char image[200];  // path to the image
+    int image;  // path to the image
 };
 
 typedef struct profile Profile;
 
 // Create a new profile
 // Returns a pointer to the new profile
-Profile *new_profile(char *email, char *name, char *last_name, char *city, char *course, int year_of_degree, char *skills);
+Profile *new_profile(char *email, char *name, char *last_name, char *city, char *course, int year_of_degree, char *skills, int image_size);
 
 #endif
