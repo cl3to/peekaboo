@@ -3,7 +3,7 @@
 
 // Function prototypes
 typedef struct connection_handler ConnectionHandler;
-typedef int (*connect_function_t)(ConnectionHandler *self) ;
+typedef int (*connect_function_t)(ConnectionHandler *self, int socktype);
 typedef int (*send_function_t)(ConnectionHandler *self, char *message);
 typedef char* (*receive_function_t)(ConnectionHandler *self);
 typedef void (*disconnect_function_t)(ConnectionHandler *self);
@@ -11,6 +11,7 @@ typedef void (*disconnect_function_t)(ConnectionHandler *self);
 // Abstract the connection operations in the client side
 struct connection_handler
 {
+    int socktype; // socket type
     int sockfd; // socket file descriptor
     char *server_ip;
     char *server_port;
@@ -22,7 +23,7 @@ struct connection_handler
 
 // Start a connection with the server
 // Return 0 if success, -1 otherwise
-int client_connect(ConnectionHandler *self);
+int client_connect(ConnectionHandler *self, int socktype);
 
 // Send a message to the server
 // Return 0 if success, -1 otherwise

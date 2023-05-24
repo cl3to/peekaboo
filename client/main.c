@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     char *server_ip = "127.0.0.1";
     char *server_port = PORT;
     int connected;
-    char socket_type = 0;
+    int socket_type = 0;
     char message_buffer[512];
 
     // Parse the command line arguments
@@ -39,7 +39,6 @@ int main(int argc, char *argv[])
         else if (!strcmp(argv[i], TCP_FLAG))
         {
             socket_type = 1;
-            socket_type++;
         }
         else if (!strcmp(argv[i], HELP_FLAG))
         {
@@ -67,7 +66,7 @@ int main(int argc, char *argv[])
     };
 
     // Connect to the server
-    connected = conn_handler.connect(&conn_handler);
+    connected = conn_handler.connect(&conn_handler, socket_type);
 
     // If the connection fails, exit
     if (connected == -1)
