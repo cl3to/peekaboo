@@ -38,13 +38,6 @@ void _handle_udp_client_requests(int sockfd)
             exit(1);
         }
 
-        // TODO: Maybe remove this
-        printf("(pid %d) SERVER >>> Got packet from %s\n",
-               pid,
-               inet_ntop(their_addr.ss_family,
-                         get_in_addr((struct sockaddr *)&their_addr),
-                         s, sizeof s));
-
         request[request_len] = '\0';
 
         printf("(pid %d) SERVER >>> Receive packet with %d bytes\n", pid, request_len);
