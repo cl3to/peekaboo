@@ -6,13 +6,32 @@
 
 char *serialize_operation(OperationCode operation_code, int parameters_length, char *parameters)
 {
-    char *client_message = malloc(MAX_MESSAGE_SIZE);
+    char *client_message = calloc(MAX_MESSAGE_SIZE, 1);
+    char temp[strlen(parameters) + 100];
+    // Put operation code in the first byte
+    client_message[0] = (char) operation_code;
+
+    // construct the data field in the json format
     sprintf(
-        client_message,
-        "{\"operation_code\": %d,"
-        "\"params_length\": %d,"
+        temp,
+        "{\"params_length\": %d,"
         "\"params\": %s}",
-        operation_code, parameters_length, parameters);
+        parameters_length, parameters
+    );
+
+    int data_end = strlen(temp) + 4;
+    // printf("data_end: %d\n", data_end);
+
+    // Put parameters length in the next 4 bytes
+    client_message[1] = (char) (data_end >> 24);
+    client_message[2] = (char) (data_end >> 16);
+    client_message[3] = (char) (data_end >> 8);
+    client_message[4] = (char) (data_end);
+
+    // Put data in the next bytes
+    memcpy(client_message + 5, temp, data_end);
+    // printf("operation code: %d\n", (int) client_message[0]);
+    // printf("serialized operation:\n%s\n", client_message+5);
     return client_message;
 }
 

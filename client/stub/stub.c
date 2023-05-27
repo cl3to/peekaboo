@@ -18,7 +18,9 @@
 
 #define TIMEOUT 5000 // 5 seconds
 
+// TODO: Improve context variables
 OperationCode current_operation = EXIT;
+int request_len = 0;
 
 // Check if the received message is valid
 // Parameters:
@@ -92,7 +94,7 @@ int client_connect(ConnectionHandler *self, int socktype)
     }
 
     freeaddrinfo(servinfo); // all done with this structure
-    printf("socket: %d\n", self->sockfd);
+
     self->pollfd[0].fd = self->sockfd;
     self->pollfd[0].events = POLLIN; // check ready-to-read
 
@@ -102,8 +104,7 @@ int client_connect(ConnectionHandler *self, int socktype)
 int client_send(ConnectionHandler *self, char *message)
 {
     // Send data to server
-    int message_length = strlen(message);
-    int numbytes = send(self->sockfd, message, message_length, 0);
+    int numbytes = send(self->sockfd, message, request_len, 0);
 
     if (numbytes == -1)
     {
@@ -179,22 +180,22 @@ char* client_receive(ConnectionHandler *self)
                     break;
                 }
 
-                printf("received buffer:\n%s\n", rbuffer);
-                printf("inspected buffer:\n%s\n", packet_manager.buffer);
+                // printf("received buffer:\n%s\n", rbuffer);
+                // printf("inspected buffer:\n%s\n", packet_manager.buffer);
                 inspect_status = packet_manager.inspect(
                     &packet_manager, rbuffer, received_bytes, current_operation
                 );
-                printf("inspected buffer:\n%s\n", packet_manager.buffer);
+                // printf("inspected buffer:\n%s\n", packet_manager.buffer);
 
                 if (inspect_status)
                 {
-                    fprintf(stderr, "failed to inspect packet\n");
+                    fprintf(stderr, "failed to inspect packet.\n");
                     break;
                 }
             }
             else if (self->pollfd[0].revents & POLLERR)
             {
-                fprintf(stderr,"Error establishing communication with the server\n");
+                fprintf(stderr,"Error establishing communication with the server.\n");
                 break;
             }
         }
@@ -213,7 +214,12 @@ void client_disconnect(ConnectionHandler *self)
 char *make_request(ConnectionHandler *connection, char *request, OperationCode op)
 {
     current_operation = op;
+    // NOTE: request_len is the length of the request string + 5 bytes for the
+    // operation code and the JSON END
+    // TODO: How deal with image data in the request?
+    request_len = strlen(request+5) + 5;
     char *response = NULL;
+    // printf("request:\n%s\n", request+5);
     connection->send(connection, request);
     response = connection->receive(connection);
     return response;
@@ -236,43 +242,19 @@ void destroy_packet_manager(PacketManager *self)
 
 int inspect(PacketManager *self, char *packet, int packet_size, OperationCode op)
 {
-    uint8_t p_op;
-    uint32_t p_data_size;
-    
+
     if (op != DOWNLOAD_PROFILE_IMAGE)
     {
-        p_op = (uint8_t) packet[0];
-
-        if (p_op != op)
-        {
-            fprintf(stderr, "Invalid operation code\n");
-            return 1;
-        }
-
-        p_data_size = (
-            (uint32_t) packet[1] << 24 |
-            (uint32_t) packet[2] << 16 |
-            (uint32_t) packet[3] << 8 |
-            (uint32_t) packet[4]
-        );
-
-        if (p_data_size != packet_size - 5)
-        {
-            fprintf(stderr, "Invalid data size\n");
-            return 1;
-        }
-
         // Copy data to buffer
-        memcpy(self->buffer + self->buffer_end, packet + 5, p_data_size);
-        self->buffer_end += p_data_size;
-
+        memcpy(self->buffer + self->buffer_end, packet, packet_size);
+        self->buffer_end += packet_size;
 
         int depth = 0;
         check_received_message(self->buffer, &depth, 0, self->buffer_end);
 
         if (depth)
         {
-            fprintf(stderr, "Incomplete JSON message\n");
+            fprintf(stderr, "Incomplete JSON message.\n");
             return 1;
         }
     
@@ -281,10 +263,21 @@ int inspect(PacketManager *self, char *packet, int packet_size, OperationCode op
 
         return 0;
     }
+
     else
     {   
         // TODO: Implement image packet inspection
         printf("Image packet inspection\n");
+        
+        // uint32_t p_data_size;
+
+        // p_data_size = (
+        //     (uint32_t) packet[1] << 24 |
+        //     (uint32_t) packet[2] << 16 |
+        //     (uint32_t) packet[3] << 8 |
+        //     (uint32_t) packet[4]
+        // );
+
         // self->npr++;
         // if (self->npr == self->nptr)
         // {
