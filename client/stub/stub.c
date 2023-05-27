@@ -1,18 +1,24 @@
+
+// system libraries
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <errno.h>
-#include <string.h>
+
+// Network libraries
 #include <netdb.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#include "../../utils/constants.h"
 #include "stub.h"
 
 #define TIMEOUT 5000 // 5 seconds
+
+OperationCode current_operation = EXIT;
 
 // Check if the received message is valid
 // Parameters:
@@ -137,9 +143,18 @@ char* _receive(ConnectionHandler *connection)
 
 char* client_receive(ConnectionHandler *self)
 {
-    char *response = NULL;
+    char *rbuffer = calloc(MAXDATASIZE, 1); // Allocating memory for receive buffer
+    int received_bytes = 0, inspect_status = 0;
+    PacketManager packet_manager = {
+        .init = init_packet_manager,
+        .destroy = destroy_packet_manager,
+        .inspect = inspect,
+    };
+
+    packet_manager.init(&packet_manager);
+
     // TODO: Wait for image data packets from server
-    while(1)
+    while(!packet_manager.completed)
     {
         int rv = poll(self->pollfd, 1, TIMEOUT);
         if (rv == -1)
@@ -149,24 +164,45 @@ char* client_receive(ConnectionHandler *self)
         }
         else if (rv == 0)
         {
-            printf("Timeout occurred! No data after %d second.\n", TIMEOUT / 1000);
+            fprintf(stderr, "Timeout occurred! No data after %d seconds.\n", TIMEOUT / 1000);
             break;
         }
         else
         {
             if (self->pollfd[0].revents & POLLIN)
             {
-                response =  _receive(self);
-                break;
+
+                received_bytes = recv(self->sockfd, rbuffer, MAXDATASIZE, 0);
+                if (received_bytes < 0)
+                {
+                    perror("recv");
+                    break;
+                }
+
+                printf("received buffer:\n%s\n", rbuffer);
+                printf("inspected buffer:\n%s\n", packet_manager.buffer);
+                inspect_status = packet_manager.inspect(
+                    &packet_manager, rbuffer, received_bytes, current_operation
+                );
+                printf("inspected buffer:\n%s\n", packet_manager.buffer);
+
+                if (inspect_status)
+                {
+                    fprintf(stderr, "failed to inspect packet\n");
+                    break;
+                }
             }
             else if (self->pollfd[0].revents & POLLERR)
             {
-                printf("Connection closed\n");
+                fprintf(stderr,"Error establishing communication with the server\n");
                 break;
             }
         }
     }
-    return response;
+
+    strcpy(rbuffer, packet_manager.buffer);
+    packet_manager.destroy(&packet_manager);
+    return rbuffer;
 }
 
 void client_disconnect(ConnectionHandler *self)
@@ -174,10 +210,87 @@ void client_disconnect(ConnectionHandler *self)
     close(self->sockfd);
 }
 
-char *make_request(ConnectionHandler *connection, char *request)
+char *make_request(ConnectionHandler *connection, char *request, OperationCode op)
 {
-    char *response;
+    current_operation = op;
+    char *response = NULL;
     connection->send(connection, request);
     response = connection->receive(connection);
     return response;
+}
+
+void init_packet_manager(PacketManager *self)
+{
+    self->buffer = calloc(MAXDATASIZE, sizeof(char));
+    self->buffer_size = MAXDATASIZE;
+    self->buffer_end = 0;
+    self->nptr = MAX_SENT_PACKETS;
+    self->npr = 0;
+    self->completed = 0;
+}
+
+void destroy_packet_manager(PacketManager *self)
+{
+    free(self->buffer);
+}
+
+int inspect(PacketManager *self, char *packet, int packet_size, OperationCode op)
+{
+    uint8_t p_op;
+    uint32_t p_data_size;
+    
+    if (op != DOWNLOAD_PROFILE_IMAGE)
+    {
+        p_op = (uint8_t) packet[0];
+
+        if (p_op != op)
+        {
+            fprintf(stderr, "Invalid operation code\n");
+            return 1;
+        }
+
+        p_data_size = (
+            (uint32_t) packet[1] << 24 |
+            (uint32_t) packet[2] << 16 |
+            (uint32_t) packet[3] << 8 |
+            (uint32_t) packet[4]
+        );
+
+        if (p_data_size != packet_size - 5)
+        {
+            fprintf(stderr, "Invalid data size\n");
+            return 1;
+        }
+
+        // Copy data to buffer
+        memcpy(self->buffer + self->buffer_end, packet + 5, p_data_size);
+        self->buffer_end += p_data_size;
+
+
+        int depth = 0;
+        check_received_message(self->buffer, &depth, 0, self->buffer_end);
+
+        if (depth)
+        {
+            fprintf(stderr, "Incomplete JSON message\n");
+            return 1;
+        }
+    
+        // Set packet receive as complete
+        self->completed = 1;
+
+        return 0;
+    }
+    else
+    {   
+        // TODO: Implement image packet inspection
+        printf("Image packet inspection\n");
+        // self->npr++;
+        // if (self->npr == self->nptr)
+        // {
+        //     self->complete = 1;
+        // }
+    }
+
+    return 0;
 }

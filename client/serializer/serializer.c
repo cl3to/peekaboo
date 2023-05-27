@@ -131,7 +131,7 @@ Profile *deserialize_profile(char *response, int *data_len)
     cJSON *json = cJSON_Parse(response);
     if (json == NULL)
     {
-        printf("Error parsing JSON: %s\n", cJSON_GetErrorPtr());
+        fprintf(stderr, "Error parsing JSON.\n");
         return NULL;
     }
 
@@ -142,7 +142,7 @@ Profile *deserialize_profile(char *response, int *data_len)
         data_len_item == NULL ||
         !cJSON_IsNumber(data_len_item))
     {
-        printf("Invalid response\n");
+        fprintf(stderr, "Invalid response\n");
         return NULL;
     }
 
@@ -191,7 +191,7 @@ char *deserialize_authentication(char *response)
     cJSON *json = cJSON_Parse(response);
     if (json == NULL)
     {
-        printf("Error parsing JSON: %s\n", cJSON_GetErrorPtr());
+        fprintf(stderr, "Error parsing JSON.\n");
         return NULL;
     }
 
@@ -203,18 +203,18 @@ char *deserialize_authentication(char *response)
         status_item == NULL ||
         !cJSON_IsNumber(status_item))
     {
-        printf("Invalid response.\n");
+        fprintf(stderr, "Invalid response.\n");
         return NULL;
     }
 
     if (status_item->valueint == 401)
     {
-        printf("Invalid password.\n");
+        fprintf(stderr, "Invalid password.\n");
         return NULL;
     }
     if (status_item->valueint == 400)
     {
-        printf("Authentication Fail.\n");
+        fprintf(stderr, "Authentication Fail.\n");
         return NULL;
     }
 
@@ -227,7 +227,7 @@ char *deserialize_admin_operation_response(char *response, int *status_p)
     cJSON *json = cJSON_Parse(response);
     if (json == NULL)
     {
-        printf("Error parsing JSON: %s\n", cJSON_GetErrorPtr());
+        fprintf(stderr, "Error parsing JSON.\n");
         return NULL;
     }
 
@@ -236,7 +236,7 @@ char *deserialize_admin_operation_response(char *response, int *status_p)
 
     if (status_item == NULL || !cJSON_IsNumber(status_item))
     {
-        printf("Invalid response.\n");
+        fprintf(stderr, "Invalid response.\n");
         return NULL;
     }
 

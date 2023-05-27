@@ -194,7 +194,7 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
 
         if (request)
         {
-            response = make_request(conn_handler, request);
+            response = make_request(conn_handler, request, operation_code);
             
             if (operation_code <= GET_PROFILE_BY_EMAIL)
             {

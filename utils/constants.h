@@ -62,5 +62,6 @@ typedef enum StatusCode
 #define MAXDATASIZE 64 * 1024     // Max number of bytes we can get at once
 #define PORT "4527"               // Peekaboo port number
 #define SESSION_TOKEN_LENGTH 42   // Session token length
+#define MAX_SENT_PACKETS 256      // Max number of packets that can be sent in a single request
 
 #endif
