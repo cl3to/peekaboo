@@ -75,13 +75,15 @@ void _handle_tcp_client_requests(int new_fd)
         printf("(pid %d) SERVER >>> Receive request message: '%s'\n", pid, request);
 
         // Handle request from client using serializers
-        response = general_serializer(profiles, request);
+        // TODO: imrpove this response format
+        response = general_serializer(profiles, request)->data;
         response_len = strlen(response);
 
         printf("(pid %d) SERVER >>> Sending response with %d bytes\n", pid, response_len);
         printf("(pid %d) SERVER >>> Sending response message: '%s'\n", pid, response);
 
         // Send response message
+        // TODO: send the linked list of the right way
         if (_send_all_data(new_fd, response, &response_len) == -1)
         {
             printf("(pid %d) SERVER >>> ", pid);

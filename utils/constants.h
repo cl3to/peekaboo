@@ -49,6 +49,8 @@ typedef enum StatusCode
     REGISTRATION_FAILED = 403,
     // Status code for failed profile removal
     REMOVAL_FAILED = 404,
+    // Status code for failed in the image recovering process
+    RECOVER_IMAGE_FAILED = 405
 
 } StatusCode;
 
@@ -58,6 +60,11 @@ typedef enum StatusCode
 #define MESSAGE_BODY_SIZE_SIZE 4                          // Bytes to store the JSON's end in the message
 #define HEADER_SIZE OP_CODE_SIZE + MESSAGE_BODY_SIZE_SIZE // Header size of the message, in bytes
 #define IMAGES_DIRECTORY "images/"
+// TODO: improve the name of this consts
+#define UDP_MAX_DATA_SIZE 1024
+#define IMAGE_HEADER_SIZE 8
+#define DEFAULT_IMAGE_SIZE 6.667  // Size of the default image, in bytes
+#define IMAGE_EXTENSION ".jpg"    // The extension of the accepted images
 #define MAX_LENGTH_IMAGE_NAME 111 // 7("images/")+100(max email size)+4(".jpg")
 #define MAXDATASIZE 64 * 1024     // Max number of bytes we can get at once
 #define PORT "4527"               // Peekaboo port number

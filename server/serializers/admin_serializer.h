@@ -33,18 +33,18 @@ char *validate_password(char *password);
 
 // Login to the system's administrative area
 // Returns a admin response in JSON format with a Status Code of success (200) or error (>=400)
-char *login_with_password(char *password);
+response_stream *login_with_password(char *password);
 
 // Logout from the system's administrative area
 // Returns a admin response in JSON format with a Status Code of success (200) or error (>=400)
-char *logout(char *session_token);
+response_stream *logout(char *session_token);
 
 // Create a new profile
 // Returns a admin response in JSON format with a Status Code of success (200) or error (>=400)
-char *create_new_profile(char *session_token, char *email, char *name, char *last_name, char *city, char *course, int year_of_degree, char *skills, char *image, int image_size);
+response_stream *create_new_profile(char *session_token, char *email, char *name, char *last_name, char *city, char *course, int year_of_degree, char *skills, char *image, int image_size);
 
 // Remove a profile filter from email
 // Returns a admin response in JSON format with a Status Code of success (200) or error (>=400)
-char *remove_profile_by_email(char *session_token, char *email);
+response_stream *remove_profile_by_email(char *session_token, char *email);
 
 #endif

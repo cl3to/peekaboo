@@ -1,14 +1,14 @@
 #include "general_serializer.h"
 
 // Serializer to make json parsing and choice the correct serializer function
-char *general_serializer(Profile *profiles, char *request_message)
+response_stream *general_serializer(Profile *profiles, char *request_message)
 {
   // Process ID for prints log of the server
   int pid = getpid();
 
   int operation_code, params_length;
   int body_size = 0;
-  char *response;
+  response_stream *response;
 
   // Retrieve the message metadata
   operation_code = (int)request_message[0];
@@ -69,11 +69,10 @@ char *general_serializer(Profile *profiles, char *request_message)
         profiles,
         cJSON_GetObjectItemCaseSensitive(params_items, "email")->valuestring);
     break;
-  // TODO: Implement this for the second assignment
   case DOWNLOAD_PROFILE_IMAGE:
-    // TODO: add image size in the first 4 bytes or zero for error message (return only error)
-    fprintf(stderr, "(pid %d) SERVER >>> Wait for Peekaboo 2.0 release.\n", pid);
-    response = NULL;
+    response = image_by_email(
+        cJSON_GetObjectItemCaseSensitive(params_items, "email")->valuestring
+    );
     break;
 
   // ADMIN ACTIONS

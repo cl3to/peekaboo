@@ -48,4 +48,9 @@ int get_profile_by_email(Profile *profile, char *email);
 // Returns -1 if the profile was not deleted
 int delete_profile_by_email(char *email);
 
+// Get the image size of the given email's profile using sqlite3
+// Returns the profile's image size were retrieved successfully
+// Returns -1 if the profile's image size was not retrieved
+int get_image_size_by_email(char *email);
+
 #endif
