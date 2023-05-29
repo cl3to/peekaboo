@@ -23,4 +23,12 @@ typedef struct profile Profile;
 // Returns a pointer to the new profile
 Profile *new_profile(char *email, char *name, char *last_name, char *city, char *course, int year_of_degree, char *skills, int image_size);
 
+// Struct to build a liked list of reponses
+struct response_stream {
+    char *data;
+    struct response_stream *next;
+};
+
+typedef struct response_stream response_stream;
+
 #endif

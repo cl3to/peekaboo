@@ -17,7 +17,7 @@ void _handle_udp_client_requests(int sockfd)
     // Create messages variables
     // The MAXDATASIZE limit the maximum number of bytes we can get at once
     char request[MAXDATASIZE + 1];
-    char *response;
+    response_stream *response;
     int request_len, response_len, sent_bytes;
     int send_failures_count = 0;
 
@@ -44,14 +44,15 @@ void _handle_udp_client_requests(int sockfd)
         printf("(pid %d) SERVER >>> Receive packet contains: '%s'\n", pid, request);
 
         // Handle request from client using serializers
+        // TODO: change all the use response to use the linked list
         response = general_serializer(profiles, request);
-        response_len = strlen(response);
+        response_len = strlen(response->data);
 
         printf("(pid %d) SERVER >>> Sending response with %d bytes\n", pid, response_len);
-        printf("(pid %d) SERVER >>> Sending response message: '%s'\n", pid, response);
+        printf("(pid %d) SERVER >>> Sending response message: '%s'\n", pid, response->data);
 
         // Send response message
-        if ((sent_bytes = sendto(sockfd, response, response_len, 0,
+        if ((sent_bytes = sendto(sockfd, response->data, response_len, 0,
                                  (struct sockaddr *)&their_addr, addr_len)) == -1)
         {
             printf("(pid %d) SERVER >>> ", pid);
