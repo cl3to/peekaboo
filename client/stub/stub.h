@@ -8,7 +8,7 @@
 // Function prototypes
 typedef struct connection_handler ConnectionHandler;
 typedef int (*connect_function_t)(ConnectionHandler *self, int socktype);
-typedef int (*send_function_t)(ConnectionHandler *self, char *message);
+typedef int (*send_function_t)(ConnectionHandler *self, Request *request);
 typedef char* (*receive_function_t)(ConnectionHandler *self);
 typedef void (*disconnect_function_t)(ConnectionHandler *self);
 
@@ -32,7 +32,7 @@ int client_connect(ConnectionHandler *self, int socktype);
 
 // Send a message to the server
 // Return 0 if success, -1 otherwise
-int client_send(ConnectionHandler *self, char *message);
+int client_send(ConnectionHandler *self, Request *request);
 
 // Receive a message from the server
 // Return the message if success, NULL otherwise
@@ -42,7 +42,7 @@ char* client_receive(ConnectionHandler *self);
 void client_disconnect(ConnectionHandler *self);
 
 // Make a request to the server and return the response
-char *make_request(ConnectionHandler *connection, char *request, OperationCode op);
+char *make_request(ConnectionHandler *connection, Request *request);
 
 // Manage receipt of packets by socket
 typedef struct packet_manager PacketManager;

@@ -71,7 +71,8 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
     char *session_token = NULL;
 
     OperationCode operation_code;
-    char *request = NULL, *response = NULL;
+    Request *request = NULL;
+    char *response = NULL;
     int data_len = 0;
     char input[512];
 
@@ -190,11 +191,11 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
             printf("Escolha uma opção válida!\n");
         }
 
-        clear_screen();
+        // clear_screen();
 
         if (request)
         {
-            response = make_request(conn_handler, request, operation_code);
+            response = make_request(conn_handler, request);
             
             if (operation_code <= GET_PROFILE_BY_EMAIL)
             {
@@ -233,6 +234,7 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
                 free(status_message);
             }
 
+            free(request->data);
             free(request);
             free(response);
             request = NULL;

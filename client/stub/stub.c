@@ -101,10 +101,10 @@ int client_connect(ConnectionHandler *self, int socktype)
     return 0;
 }
 
-int client_send(ConnectionHandler *self, char *message)
+int client_send(ConnectionHandler *self, Request *request)
 {
     // Send data to server
-    int numbytes = send(self->sockfd, message, request_len, 0);
+    int numbytes = send(self->sockfd, request->data, request->data_size, 0);
 
     if (numbytes == -1)
     {
@@ -113,33 +113,6 @@ int client_send(ConnectionHandler *self, char *message)
     }
 
     return 0;
-}
-
-char* _receive(ConnectionHandler *connection)
-{
-    char *response = calloc(MAXDATASIZE, 1); // Allocating memory for response
-    char buffer[MAXDATASIZE] = {0};
-    int depth = 0, start = 0, end = 0, numbytes = 0;
-
-    // Receive data from server
-    do
-    {
-        numbytes = recv(connection->sockfd, buffer, MAXDATASIZE, 0);
-        if (numbytes < 0)
-        {
-            perror("recv");
-            break;
-        }
-        // fprintf(stderr, "CLIENT SIDE --> receve bytes: %d\n", numbytes);
-
-        start = end;
-        end += numbytes;
-        strncpy(response + start, buffer, numbytes);
-        check_received_message(response, &depth, start, end);
-    }
-    while (depth);
-
-    return response;
 }
 
 char* client_receive(ConnectionHandler *self)
@@ -211,13 +184,15 @@ void client_disconnect(ConnectionHandler *self)
     close(self->sockfd);
 }
 
-char *make_request(ConnectionHandler *connection, char *request, OperationCode op)
+char *make_request(ConnectionHandler *connection, Request *request)
 {
-    current_operation = op;
+    current_operation = request->operation_code;
+    
     // NOTE: request_len is the length of the request string + 5 bytes for the
     // operation code and the JSON END
     // TODO: How deal with image data in the request?
-    request_len = strlen(request+5) + 5;
+    request_len = request->data_size;
+    
     char *response = NULL;
     // printf("request:\n%s\n", request+5);
     connection->send(connection, request);
