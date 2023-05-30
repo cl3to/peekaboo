@@ -91,7 +91,7 @@ response_stream *general_serializer(Profile *profiles, char *request_message)
         cJSON_GetObjectItemCaseSensitive(params_items, "course")->valuestring,
         cJSON_GetObjectItemCaseSensitive(params_items, "year_of_degree")->valueint,
         cJSON_GetObjectItemCaseSensitive(params_items, "skills")->valuestring,
-        request_message + HEADER_SIZE + body_size, // pointer to image data
+        request_message + body_size, // pointer to the image data
         cJSON_GetObjectItemCaseSensitive(params_items, "image")->valueint);
     break;
   case LOGIN:
