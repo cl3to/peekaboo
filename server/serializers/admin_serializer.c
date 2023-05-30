@@ -120,6 +120,7 @@ response_stream *_make_admin_response(StatusCode status_code, char *session_toke
 
   response_stream *admin_response = (response_stream *)malloc(sizeof(response_stream));
   admin_response->data = strdup(response_msg);
+  admin_response->data_size = strlen(response_msg);
   admin_response->next = NULL;
 
   return admin_response;

@@ -11,6 +11,9 @@
 #include "../../utils/user_message.h"
 #include "../database/database.h"
 
+// Global variables to manager the type of connection
+extern int should_use_tcp;
+
 // Serialization of the profiles filtred by the academic degree
 // Returns the profiles in json format
 // Returns -1 if error occurred

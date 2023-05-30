@@ -18,3 +18,16 @@ Profile *new_profile(char *email, char *name, char *last_name, char *city, char 
     profile->image = image_size;
     return profile;
 }
+
+// Free the response_stream liked list
+void freeLinkedList(response_stream *head)
+{
+  response_stream *current = head;
+  while (current != NULL)
+  {
+    response_stream *temp = current;
+    current = current->next;
+    free(temp->data);
+    free(temp);
+  }
+}

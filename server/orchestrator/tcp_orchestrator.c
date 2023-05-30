@@ -75,7 +75,13 @@ void _handle_tcp_client_requests(int new_fd)
         printf("(pid %d) SERVER >>> Receive request message: '%s'\n", pid, request);
 
         // Handle request from client using serializers
-        // TODO: imrpove this response format
+        /*
+        At first only the image download operation really needs the use of the connected list,
+        how this operation was not implemented for the TCP connection all the contents of
+        the response of operations should be on the first node of the list.
+        Then the answer accesses this pointer directly.
+        */
+        // TODO: improve the send function and use the linked list correctly
         response = general_serializer(profiles, request)->data;
         response_len = strlen(response);
 
@@ -83,7 +89,6 @@ void _handle_tcp_client_requests(int new_fd)
         printf("(pid %d) SERVER >>> Sending response message: '%s'\n", pid, response);
 
         // Send response message
-        // TODO: send the linked list of the right way
         if (_send_all_data(new_fd, response, &response_len) == -1)
         {
             printf("(pid %d) SERVER >>> ", pid);

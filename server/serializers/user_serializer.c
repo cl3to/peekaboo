@@ -161,11 +161,17 @@ response_stream *image_by_email(char *email)
 {
   // Process ID for prints log of the server
   int pid = getpid();
+
+  if(should_use_tcp == 1){
+    fprintf(stderr, "(pid %d) SERVER >>> Image download can only be performed with UDP connection.\n", pid);
+    return _make_error_response(RECOVER_IMAGE_FAILED, 1);
+  }
+
   int image_size, total_messages, message_number, message_size, currentOffset, bytesRead;
 
   char filepath[MAX_LENGTH_IMAGE_NAME] = IMAGES_DIRECTORY;
   char header[IMAGE_HEADER_SIZE];
-  unsigned char buffer[UDP_MAX_DATA_SIZE];
+  unsigned char buffer[UDP_MAX_CONTENT_DATA_SIZE];
 
   // Variables to build the liked list
   response_stream *head = NULL;
@@ -197,11 +203,11 @@ response_stream *image_by_email(char *email)
   }
 
   // Calculate the number total of messages
-  total_messages = image_size / UDP_MAX_DATA_SIZE;
+  total_messages = image_size / UDP_MAX_CONTENT_DATA_SIZE;
 
   // Build the static part of the header
   // Second byte of the header receives the value of total_messages
-  header[1] = (unsigned char)total_messages;
+  header[1] = (uint8_t)total_messages;
 
   // Last four bytes of the header receive the value of image_size
   header[4] = (image_size >> 24) & 0xFF;
@@ -222,7 +228,7 @@ response_stream *image_by_email(char *email)
   {
 
     // Determine the packet size for the current iteration
-    message_size = (message_number == total_messages - 1) ? (image_size % UDP_MAX_DATA_SIZE) : UDP_MAX_DATA_SIZE;
+    message_size = (message_number == total_messages - 1) ? (image_size % UDP_MAX_CONTENT_DATA_SIZE) : UDP_MAX_CONTENT_DATA_SIZE;
 
     // First byte of the header receives the message_number
     header[0] = (uint8_t)message_number; // Messages count starts of zero
@@ -233,11 +239,12 @@ response_stream *image_by_email(char *email)
 
     // Allocate memory for the response_stream structure
     response_stream *packet = (response_stream *)malloc(sizeof(response_stream));
-    packet->data = (char *)malloc(UDP_MAX_DATA_SIZE + IMAGE_HEADER_SIZE);
+    packet->data = (char *)malloc(UDP_MAX_CONTENT_DATA_SIZE + IMAGE_HEADER_SIZE);
+    packet->data_size = message_size + IMAGE_HEADER_SIZE;
     packet->next = NULL;
 
     // Set the file position to the appropriate offset
-    currentOffset = message_number * UDP_MAX_DATA_SIZE;
+    currentOffset = message_number * UDP_MAX_CONTENT_DATA_SIZE;
     fseek(fp, currentOffset, SEEK_SET);
 
     // Read the packet content from the image
@@ -271,17 +278,4 @@ response_stream *image_by_email(char *email)
   fclose(fp);
 
   return head;
-}
-
-// TODO: put this in other file
-void freeLinkedList(response_stream *head)
-{
-  response_stream *current = head;
-  while (current != NULL)
-  {
-    response_stream *temp = current;
-    current = current->next;
-    free(temp->data);
-    free(temp);
-  }
 }

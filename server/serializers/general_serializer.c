@@ -12,7 +12,7 @@ response_stream *general_serializer(Profile *profiles, char *request_message)
 
   // Retrieve the message metadata
   operation_code = (int)request_message[0];
-  memcpy(&body_size, request_message + OP_CODE_SIZE, MESSAGE_BODY_SIZE_SIZE);
+  memcpy(&body_size, request_message + OP_CODE_SIZE, END_MESSAGE_POSITION_SIZE);
   body_size = ntohl(body_size); // Convert body_size from network byte order to host byte order
 
   // Retrive the message body in JSON format
