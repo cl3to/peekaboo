@@ -25,10 +25,14 @@ Profile *new_profile(char *email, char *name, char *last_name, char *city, char 
 
 // Struct to build a liked list of reponses
 struct response_stream {
-    char *data;
-    struct response_stream *next;
+    char *data;     // Pointer to the packet data
+    int data_size; // Size of the packet
+    struct response_stream *next;   //Pointer to the next response stream
 };
 
 typedef struct response_stream response_stream;
+
+// Functions to free the response stream licked list
+void freeLinkedList(response_stream *head);
 
 #endif
