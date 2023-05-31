@@ -13,13 +13,21 @@ int _send_udp_response_stream(response_stream *response_list, int sockfd, struct
 
     do
     {
-        // Extract header from the packet data
-        memcpy(header, current_message->data, IMAGE_HEADER_SIZE);
+
+        if (!current_message->is_image)
+        {
+            printf("(pid %d) SERVER >>> Send:\n%s\n", pid, (char*) current_message->data);
+        }
 
         current_message_len = current_message->data_size;
 
-        printf("(pid %d) SERVER >>> Sending message %u of a total of %u messages. Message with %d bytes.\n", pid, header[0]+1, header[1], current_message_len);
+        if (current_message->is_image)
+        {
+            // Extract header from the packet data
+            memcpy(header, current_message->data, IMAGE_HEADER_SIZE);
 
+            printf("(pid %d) SERVER >>> Sending message %u of a total of %u messages. Message with %d bytes.\n", pid, header[0] + 1, header[1], current_message_len);
+        }
         // Send response message and check the sucess status
         if ((sent_bytes = sendto(sockfd, current_message->data, current_message_len, 0,
                                  (struct sockaddr *)&their_addr, addr_len)) == -1)

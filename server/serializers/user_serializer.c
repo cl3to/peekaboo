@@ -60,6 +60,8 @@ response_stream *profiles_by_course_serializer(Profile *profiles, char *course)
 
   response_stream *user_response = (response_stream *)malloc(sizeof(response_stream));
   user_response->data = make_user_response_msg(profiles, profiles_amount, LIST_BY_COURSE);
+  user_response->data_size = strlen((char*)user_response->data);
+  user_response->is_image = 0;
   user_response->next = NULL;
 
   return user_response;
@@ -84,6 +86,8 @@ response_stream *profiles_by_skill_serializer(Profile *profiles, char *skill)
 
   response_stream *user_response = (response_stream *)malloc(sizeof(response_stream));
   user_response->data = make_user_response_msg(profiles, profiles_amount, LIST_BY_SKILL);
+  user_response->data_size = strlen((char*)user_response->data);
+  user_response->is_image = 0;
   user_response->next = NULL;
 
   return user_response;
@@ -108,6 +112,8 @@ response_stream *profiles_by_year_of_degree_serializer(Profile *profiles, int ye
 
   response_stream *user_response = (response_stream *)malloc(sizeof(response_stream));
   user_response->data = make_user_response_msg(profiles, profiles_amount, LIST_BY_YEAR);
+  user_response->data_size = strlen((char*)user_response->data);
+  user_response->is_image = 0;
   user_response->next = NULL;
 
   return user_response;
@@ -126,6 +132,8 @@ response_stream *profiles_serializer(Profile *profiles)
 
   response_stream *user_response = (response_stream *)malloc(sizeof(response_stream));
   user_response->data = make_user_response_msg(profiles, profiles_amount, LIST_ALL_PROFILES);
+  user_response->data_size = strlen((char*)user_response->data);
+  user_response->is_image = 0;
   user_response->next = NULL;
 
   return user_response;
@@ -151,6 +159,8 @@ response_stream *profile_by_email_serializer(Profile *profile, char *email)
 
   response_stream *user_response = (response_stream *)malloc(sizeof(response_stream));
   user_response->data = make_user_response_msg(profile, profiles_amount, GET_PROFILE_BY_EMAIL);
+  user_response->data_size = strlen((char*)user_response->data);
+  user_response->is_image = 0;
   user_response->next = NULL;
 
   return user_response;
@@ -170,8 +180,8 @@ response_stream *image_by_email(char *email)
   int image_size, total_messages, message_number, message_size, currentOffset, bytesRead;
 
   char filepath[MAX_LENGTH_IMAGE_NAME] = IMAGES_DIRECTORY;
-  char header[IMAGE_HEADER_SIZE];
-  unsigned char buffer[UDP_MAX_CONTENT_DATA_SIZE];
+  uint8_t header[IMAGE_HEADER_SIZE];
+  uint8_t buffer[UDP_MAX_CONTENT_DATA_SIZE];
 
   // Variables to build the liked list
   response_stream *head = NULL;
@@ -239,8 +249,9 @@ response_stream *image_by_email(char *email)
 
     // Allocate memory for the response_stream structure
     response_stream *packet = (response_stream *)malloc(sizeof(response_stream));
-    packet->data = (char *)malloc(UDP_MAX_CONTENT_DATA_SIZE + IMAGE_HEADER_SIZE);
+    packet->data = (uint8_t *)malloc(UDP_MAX_CONTENT_DATA_SIZE + IMAGE_HEADER_SIZE);
     packet->data_size = message_size + IMAGE_HEADER_SIZE;
+    packet->is_image = 1;
     packet->next = NULL;
 
     // Set the file position to the appropriate offset
