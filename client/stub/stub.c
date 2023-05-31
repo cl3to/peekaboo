@@ -247,6 +247,7 @@ int inspect(PacketManager *self, char *packet, int packet_size, OperationCode op
         if (current_packet == 0)
             self->nptr = total_packets;
 
+        // Posição do inicial do pacote no buffer (na imagem)
         int p_index = (image_size / total_packets) * current_packet;
 
         // Copy the packet data to the correct position in the image buffer
