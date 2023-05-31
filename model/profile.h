@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 // Struct to store profile information
 struct profile
@@ -25,7 +26,7 @@ Profile *new_profile(char *email, char *name, char *last_name, char *city, char 
 
 // Struct to build a liked list of reponses
 struct response_stream {
-    char *data;     // Pointer to the packet data
+    uint8_t *data;     // Pointer to the packet data
     int data_size; // Size of the packet
     struct response_stream *next;   //Pointer to the next response stream
 };

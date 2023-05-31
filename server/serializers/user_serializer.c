@@ -162,7 +162,8 @@ response_stream *image_by_email(char *email)
   // Process ID for prints log of the server
   int pid = getpid();
 
-  if(should_use_tcp == 1){
+  if (should_use_tcp == 1)
+  {
     fprintf(stderr, "(pid %d) SERVER >>> Image download can only be performed with UDP connection.\n", pid);
     return _make_error_response(RECOVER_IMAGE_FAILED, 1);
   }
@@ -170,8 +171,8 @@ response_stream *image_by_email(char *email)
   int image_size, total_messages, message_number, message_size, currentOffset, bytesRead;
 
   char filepath[MAX_LENGTH_IMAGE_NAME] = IMAGES_DIRECTORY;
-  char header[IMAGE_HEADER_SIZE];
-  unsigned char buffer[UDP_MAX_CONTENT_DATA_SIZE];
+  uint8_t header[IMAGE_HEADER_SIZE];
+  uint8_t buffer[UDP_MAX_CONTENT_DATA_SIZE];
 
   // Variables to build the liked list
   response_stream *head = NULL;
@@ -239,7 +240,7 @@ response_stream *image_by_email(char *email)
 
     // Allocate memory for the response_stream structure
     response_stream *packet = (response_stream *)malloc(sizeof(response_stream));
-    packet->data = (char *)malloc(UDP_MAX_CONTENT_DATA_SIZE + IMAGE_HEADER_SIZE);
+    packet->data = (uint8_t *)malloc(UDP_MAX_CONTENT_DATA_SIZE + IMAGE_HEADER_SIZE);
     packet->data_size = message_size + IMAGE_HEADER_SIZE;
     packet->next = NULL;
 
