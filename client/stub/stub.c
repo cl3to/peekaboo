@@ -27,7 +27,7 @@ OperationCode current_operation = EXIT;
 //  - depth: the current depth of the message
 //  - start: the index of the first character of the message
 //  - end: the index of the last character of the message
-void check_received_message(char *message, int *depth, int start, int end)
+void check_received_message(uint8_t *message, int *depth, int start, int end)
 {
     char c;
     for (int i = start; i < end; i++)
@@ -116,7 +116,7 @@ int client_send(ConnectionHandler *self, Request *request)
 
 Response* client_receive(ConnectionHandler *self)
 {
-    char *rbuffer = calloc(MAX_IMAGE_SIZE, 1); // Allocating memory for receive buffer
+    uint8_t *rbuffer = calloc(MAX_IMAGE_SIZE, 1); // Allocating memory for receive buffer
     Response *response = malloc(sizeof(Response));
 
     int received_bytes = 0, inspect_status = 0;
@@ -200,7 +200,7 @@ Response *make_request(ConnectionHandler *connection, Request *request)
 
 void init_packet_manager(PacketManager *self)
 {
-    self->buffer = calloc(MAX_IMAGE_SIZE, sizeof(char));
+    self->buffer = calloc(MAX_IMAGE_SIZE, sizeof(uint8_t));
     self->buffer_size = MAX_IMAGE_SIZE;
     self->used_size = 0;
     self->buffer_end = 0;
@@ -215,7 +215,7 @@ void destroy_packet_manager(PacketManager *self)
     free(self->buffer);
 }
 
-int inspect(PacketManager *self, char *packet, int packet_size, OperationCode op)
+int inspect(PacketManager *self, uint8_t *packet, int packet_size, OperationCode op)
 {
 
     if (packet_size <= 0)
@@ -230,9 +230,9 @@ int inspect(PacketManager *self, char *packet, int packet_size, OperationCode op
         // printf("Image packet inspection\n");
         
         // Packet Number (0-total_packets)
-        uint8_t current_packet = (uint8_t) packet[0];
+        uint8_t current_packet = packet[0];
         // Number of packets to receive
-        uint8_t total_packets = (uint8_t) packet[1];
+        uint8_t total_packets = packet[1];
         // Size of the data Field in the packet
         uint16_t data_size = ((uint16_t) packet[2] << 8) | ((uint16_t) packet[3]);
         // Image size

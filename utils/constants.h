@@ -76,7 +76,7 @@ typedef struct request
 
 typedef struct response
 {
-    char *data;
+    uint8_t *data;
     int data_size;
 } Response;
 

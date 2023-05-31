@@ -1,6 +1,7 @@
 #ifndef SERIALIZER_H
 #define SERIALIZER_H
 
+#include <stdint.h>
 #include "../../model/profile.h"
 #include "../../utils/constants.h"
 
@@ -53,15 +54,15 @@ Request *serialize_logout_operation(char *session_token);
 
 // Transform the server response into a Profile List
 // Returns the Profile List
-Profile *deserialize_profile(char *response, int *data_len);
+Profile *deserialize_profile(uint8_t *response, int *data_len);
 
 // Transform the server response into a Authentication data
 // Returns the Authentication data
-char *deserialize_authentication(char *response);
+char *deserialize_authentication(uint8_t *response);
 
 // Check if the server response is a success
 // Returns a message indicating if the operation was successful or not
 // if the operation was failed, returns the error message
-char *deserialize_admin_operation_response(char *response, int *status_p);
+char *deserialize_admin_operation_response(uint8_t *response, int *status_p);
 
 #endif

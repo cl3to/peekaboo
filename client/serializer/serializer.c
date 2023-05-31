@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -215,10 +216,10 @@ Request *serialize_logout_operation(char *session_token)
     return serialized_operation;
 }
 
-Profile *deserialize_profile(char *response, int *data_len)
+Profile *deserialize_profile(uint8_t *response, int *data_len)
 {
     // Json parsing using cJSON library
-    cJSON *json = cJSON_Parse(response);
+    cJSON *json = cJSON_Parse((char*) response);
     if (json == NULL)
     {
         fprintf(stderr, "Error parsing JSON.\n");
@@ -275,10 +276,10 @@ Profile *deserialize_profile(char *response, int *data_len)
     return profiles;
 }
 
-char *deserialize_authentication(char *response)
+char *deserialize_authentication(uint8_t *response)
 {
     // Json parsing using cJSON library
-    cJSON *json = cJSON_Parse(response);
+    cJSON *json = cJSON_Parse((char*) response);
     if (json == NULL)
     {
         fprintf(stderr, "Error parsing JSON.\n");
@@ -311,10 +312,10 @@ char *deserialize_authentication(char *response)
     return session_token_item->valuestring;
 }
 
-char *deserialize_admin_operation_response(char *response, int *status_p)
+char *deserialize_admin_operation_response(uint8_t *response, int *status_p)
 {
     // Json parsing using cJSON library
-    cJSON *json = cJSON_Parse(response);
+    cJSON *json = cJSON_Parse((char*) response);
     if (json == NULL)
     {
         fprintf(stderr, "Error parsing JSON.\n");

@@ -50,7 +50,7 @@ typedef struct packet_manager PacketManager;
 // Function prototypes for packet manager
 typedef void (*init_packet_manager_function_t)(PacketManager *self);
 typedef void (*destroy_packet_manager_function_t)(PacketManager *self);
-typedef int (*inspect_packet_function_t)(PacketManager *self, char *packet, int packet_size, OperationCode op);
+typedef int (*inspect_packet_function_t)(PacketManager *self, uint8_t *packet, int packet_size, OperationCode op);
 
 // Initialize the packet manager
 void init_packet_manager(PacketManager *self);
@@ -60,11 +60,11 @@ void destroy_packet_manager(PacketManager *self);
 
 // Inspect the packet
 // return 1 if the are an error in the packet, 0 otherwise
-int inspect(PacketManager *self, char *packet, int packet_size, OperationCode op);
+int inspect(PacketManager *self, uint8_t *packet, int packet_size, OperationCode op);
 
 struct packet_manager
 {
-    char *buffer; // buffer to store the packets
+    uint8_t *buffer; // buffer to store the packets
     int buffer_size;
     int used_size; // Used size in the buffer
     int buffer_end; // index of the last byte in the buffer
