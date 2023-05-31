@@ -99,29 +99,36 @@ char *validate_password(char *password)
 }
 
 // Build  a admin response in json format
-char *_make_admin_response(StatusCode status_code, char *session_token)
+response_stream *_make_admin_response(StatusCode status_code, char *session_token)
 {
-  char admin_response[BUFFER_SIZE];
+  char response_msg[BUFFER_SIZE];
   if (session_token == NULL)
   {
     sprintf(
-        admin_response,
+        response_msg,
         "{\"status\":%d}",
         status_code);
   }
   else
   {
     sprintf(
-        admin_response,
+        response_msg,
         "{\"status\":%d,\"session_token\":\"%s\"}",
         status_code,
         session_token);
   }
-  return strdup(admin_response);
+
+  response_stream *admin_response = (response_stream *)malloc(sizeof(response_stream));
+  admin_response->data = strdup(response_msg);
+  admin_response->data_size = strlen(response_msg);
+  admin_response->is_image = 0;
+  admin_response->next = NULL;
+
+  return admin_response;
 }
 
 // Login to the system's administrative area
-char *login_with_password(char *password)
+response_stream *login_with_password(char *password)
 {
   char *new_session_token = validate_password(password);
 
@@ -134,7 +141,7 @@ char *login_with_password(char *password)
 }
 
 // Logout from the system's administrative area
-char *logout(char *session_token)
+response_stream *logout(char *session_token)
 {
   if (validate_session_token(session_token) == 0)
   {
@@ -155,7 +162,7 @@ int _save_profile_image(char *email, char *image, int image_size)
   // Define the image path and name
   char filepath[MAX_LENGTH_IMAGE_NAME] = IMAGES_DIRECTORY;
   strcat(filepath, email);
-  strcat(filepath, ".jpg");
+  strcat(filepath, IMAGE_EXTENSION);
 
   // Create or uptade the image file
   FILE *fp_new = fopen(filepath, "wb");
@@ -180,7 +187,7 @@ int _save_profile_image(char *email, char *image, int image_size)
 }
 
 // Create a new profile
-char *create_new_profile(char *session_token, char *email, char *name, char *last_name, char *city, char *course, int year_of_degree, char *skills, char *image, int image_size)
+response_stream *create_new_profile(char *session_token, char *email, char *name, char *last_name, char *city, char *course, int year_of_degree, char *skills, char *image, int image_size)
 {
   // Check given perfil parameters
   if (
@@ -213,7 +220,7 @@ char *create_new_profile(char *session_token, char *email, char *name, char *las
 }
 
 // Remove a profile filter from email
-char *remove_profile_by_email(char *session_token, char *email)
+response_stream *remove_profile_by_email(char *session_token, char *email)
 {
   // Check given email address
   if (check_email_format(email) != 0)

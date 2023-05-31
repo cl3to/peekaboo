@@ -222,7 +222,8 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
             else if (operation_code == DOWNLOAD_PROFILE_IMAGE)
             {
                 char image_path[600];
-                sprintf(image_path, "peekaboo_%s%s.jpg", IMAGES_DIRECTORY, input);
+                sprintf(image_path, "%speekaboo_%s.jpg", IMAGES_DIRECTORY, input);
+
                 FILE *image = fopen(image_path, "wb");
                 fseek(image, 0, SEEK_SET);
                 fwrite(response->data, sizeof(char), response->data_size, image);

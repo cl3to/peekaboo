@@ -1,18 +1,18 @@
 #include "general_serializer.h"
 
 // Serializer to make json parsing and choice the correct serializer function
-char *general_serializer(Profile *profiles, char *request_message)
+response_stream *general_serializer(Profile *profiles, char *request_message)
 {
   // Process ID for prints log of the server
   int pid = getpid();
 
   int operation_code, params_length;
   int body_size = 0;
-  char *response;
+  response_stream *response;
 
   // Retrieve the message metadata
   operation_code = (int)request_message[0];
-  memcpy(&body_size, request_message + OP_CODE_SIZE, MESSAGE_BODY_SIZE_SIZE);
+  memcpy(&body_size, request_message + OP_CODE_SIZE, END_MESSAGE_POSITION_SIZE);
   body_size = ntohl(body_size); // Convert body_size from network byte order to host byte order
 
   // Retrive the message body in JSON format
@@ -69,11 +69,10 @@ char *general_serializer(Profile *profiles, char *request_message)
         profiles,
         cJSON_GetObjectItemCaseSensitive(params_items, "email")->valuestring);
     break;
-  // TODO: Implement this for the second assignment
   case DOWNLOAD_PROFILE_IMAGE:
-    // TODO: add image size in the first 4 bytes or zero for error message (return only error)
-    fprintf(stderr, "(pid %d) SERVER >>> Wait for Peekaboo 2.0 release.\n", pid);
-    response = NULL;
+    response = image_by_email(
+        cJSON_GetObjectItemCaseSensitive(params_items, "email")->valuestring
+    );
     break;
 
   // ADMIN ACTIONS
@@ -92,7 +91,7 @@ char *general_serializer(Profile *profiles, char *request_message)
         cJSON_GetObjectItemCaseSensitive(params_items, "course")->valuestring,
         cJSON_GetObjectItemCaseSensitive(params_items, "year_of_degree")->valueint,
         cJSON_GetObjectItemCaseSensitive(params_items, "skills")->valuestring,
-        request_message + HEADER_SIZE + body_size, // pointer to image data
+        request_message + body_size, // pointer to the image data
         cJSON_GetObjectItemCaseSensitive(params_items, "image")->valueint);
     break;
   case LOGIN:

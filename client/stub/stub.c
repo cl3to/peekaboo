@@ -248,7 +248,7 @@ int inspect(PacketManager *self, uint8_t *packet, int packet_size, OperationCode
             self->nptr = total_packets;
 
         // Posição do inicial do pacote no buffer (na imagem)
-        int p_index = (image_size / total_packets) * current_packet;
+        int p_index = UDP_MAX_CONTENT_DATA_SIZE * current_packet;
 
         // Copy the packet data to the correct position in the image buffer
         memcpy(self->buffer + p_index, packet + 8, data_size);

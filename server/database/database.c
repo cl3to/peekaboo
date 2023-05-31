@@ -279,12 +279,6 @@ int get_profiles(Profile *profiles)
         profiles[i].year_of_degree = sqlite3_column_int(stmt, 5);
         strcpy(profiles[i].skills, (const char *)sqlite3_column_text(stmt, 6));
 
-        //TODO: Remove this in the future
-        // char *image_path = (char *)sqlite3_column_text(stmt, 7);
-        // if (image_path != NULL)
-        // {
-        //     strcpy(profiles[i].image, image_path);
-        // }
         i++;
     }
 
@@ -338,13 +332,6 @@ int get_profile_by_email(Profile *profile, char *email)
     profile->year_of_degree = atoi(result[cols + 5]);
     strcpy(profile->skills, result[cols + 6]);
 
-    //TODO: Remove this in the future
-    // char *image_path = result[cols + 7];
-    // if (image_path != NULL)
-    // {
-    //     strcpy(profile->image, result[cols + 7]);
-    // }
-
     sqlite3_free_table(result);
     sqlite3_close(db);
     return rows; // returns the number of profiles retrieved
@@ -379,4 +366,49 @@ int delete_profile_by_email(char *email)
 
     sqlite3_close(db);
     return 0;
+}
+
+// Get the profile image size from the database
+int get_image_size_by_email(char *email)
+{
+    sqlite3 *db;
+    char *err_msg = NULL;
+    int rows = 0, cols = 0;
+    char **result;
+    char sql[200];
+
+    int rc = sqlite3_open("profiles.db", &db);
+    if (rc != SQLITE_OK)
+    {
+        int pid = getpid();
+        fprintf(stderr, "(pid %d) SERVER >>> Cannot open database: %s\n", pid, sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return -1;
+    }
+
+    sprintf(sql, "SELECT image FROM profiles WHERE email = '%s'", email);
+
+    rc = sqlite3_get_table(db, sql, &result, &rows, &cols, &err_msg);
+    if (rc != SQLITE_OK)
+    {
+        int pid = getpid();
+        fprintf(stderr, "(pid %d) SERVER >>> Failed to execute query: %s\n", pid, sqlite3_errmsg(db));
+        sqlite3_free(err_msg);
+        sqlite3_close(db);
+        return -1;
+    }
+
+    if (rows == 0)
+    {
+        sqlite3_free_table(result);
+        sqlite3_close(db);
+        return -1; // No profile found
+    }
+
+    int image_size = result[cols]? atoi(result[cols]) : -1;
+
+    sqlite3_free_table(result);
+    sqlite3_close(db);
+    
+    return image_size; // returns the image size
 }
