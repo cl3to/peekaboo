@@ -405,7 +405,7 @@ int get_image_size_by_email(char *email)
         return -1; // No profile found
     }
 
-    int image_size = atoi(result[cols]);
+    int image_size = result[cols]? atoi(result[cols]) : -1;
 
     sqlite3_free_table(result);
     sqlite3_close(db);

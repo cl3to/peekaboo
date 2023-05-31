@@ -214,6 +214,9 @@ response_stream *image_by_email(char *email)
 
   // Calculate the number total of messages
   total_messages = image_size / UDP_MAX_CONTENT_DATA_SIZE;
+  if(image_size % UDP_MAX_CONTENT_DATA_SIZE != 0){
+    total_messages++;
+  }
 
   // Build the static part of the header
   // Second byte of the header receives the value of total_messages
