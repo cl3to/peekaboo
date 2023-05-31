@@ -1,75 +1,147 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "../../lib/cJSON/cJSON.h"
 
 #include "serializer.h"
 
-char *serialize_operation(OperationCode operation_code, int parameters_length, char *parameters)
+Request *serialize_operation(OperationCode operation_code, int parameters_length, char *parameters)
 {
-    char *client_message = malloc(MAX_MESSAGE_SIZE);
+    char *client_message = calloc(MAX_MESSAGE_SIZE, 1);
+    char temp[strlen(parameters) + 100];
+    // Put operation code in the first byte
+    client_message[0] = (char) operation_code;
+
+    // construct the data field in the json format
     sprintf(
-        client_message,
-        "{\"operation_code\": %d,"
-        "\"params_length\": %d,"
+        temp,
+        "{\"params_length\": %d,"
         "\"params\": %s}",
-        operation_code, parameters_length, parameters);
-    return client_message;
+        parameters_length, parameters
+    );
+
+    int message_size = strlen(temp) + 5;
+
+    // Put parameters length in the next 4 bytes
+    client_message[1] = (char) (message_size >> 24);
+    client_message[2] = (char) (message_size >> 16);
+    client_message[3] = (char) (message_size >> 8);
+    client_message[4] = (char) (message_size);
+
+    // Put data in the next bytes
+    memcpy(client_message + 5, temp, message_size-5);
+
+    // printf("operation code: %d\n", (int) client_message[0]);
+    // printf("serialized operation:\n%s\n", client_message+5);
+
+    Request *request = malloc(sizeof(Request));
+    request->operation_code = operation_code;
+    request->data = client_message;
+    request->data_size = message_size;
+
+    return request;
 }
 
-char *serialize_lbc_operation(char *course)
+Request *serialize_lbc_operation(char *course)
 {
     char *parameters = malloc(MAX_PARAMETERS_SIZE);
     sprintf(parameters, "{\"course\": \"%s\"}", course);
-    char *serialized_operation = serialize_operation(LIST_BY_COURSE, 1, parameters);
+    Request *serialized_operation = serialize_operation(LIST_BY_COURSE, 1, parameters);
     free(parameters);
     return serialized_operation;
 }
 
-char *serialize_lbs_operation(char *skills)
+Request *serialize_lbs_operation(char *skills)
 {
     char *parameters = malloc(MAX_PARAMETERS_SIZE);
     sprintf(parameters, "{\"skills\": \"%s\"}", skills);
-    char *serialized_operation = serialize_operation(LIST_BY_SKILL, 1, parameters);
+    Request *serialized_operation = serialize_operation(LIST_BY_SKILL, 1, parameters);
     free(parameters);
     return serialized_operation;
 }
 
-char *serialize_lby_operation(int year)
+Request *serialize_lby_operation(int year)
 {
     char *parameters = malloc(MAX_PARAMETERS_SIZE);
     sprintf(parameters, "{\"year_of_degree\": %d}", year);
-    char *serialized_operation = serialize_operation(LIST_BY_YEAR, 1, parameters);
+    Request *serialized_operation = serialize_operation(LIST_BY_YEAR, 1, parameters);
     free(parameters);
     return serialized_operation;
 }
 
-char *serialize_la_operation()
+Request *serialize_la_operation()
 {
-    char *serialized_operation = serialize_operation(LIST_ALL_PROFILES, 0, "{}");
+    Request *serialized_operation = serialize_operation(LIST_ALL_PROFILES, 0, "{}");
     return serialized_operation;
 }
 
-char *serialize_gp_operation(char *email)
+Request *serialize_gp_operation(char *email)
 {
     char *parameters = malloc(MAX_PARAMETERS_SIZE);
     sprintf(parameters, "{\"email\": \"%s\"}", email);
-    char *serialized_operation = serialize_operation(GET_PROFILE_BY_EMAIL, 1, parameters);
+    Request *serialized_operation = serialize_operation(GET_PROFILE_BY_EMAIL, 1, parameters);
     free(parameters);
     return serialized_operation;
 }
 
-char *serialize_login_operation(char *password)
+Request *serialize_dpi_operation(char *email)
+{
+    char *parameters = malloc(MAX_PARAMETERS_SIZE);
+    sprintf(parameters, "{\"email\": \"%s\"}", email);
+    Request *serialized_operation = serialize_operation(DOWNLOAD_PROFILE_IMAGE, 1, parameters);
+    free(parameters);
+    return serialized_operation;
+}
+
+Request *serialize_login_operation(char *password)
 {
     char *parameters = malloc(MAX_PARAMETERS_SIZE);
     sprintf(parameters, "{\"password\": \"%s\"}", password);
-    char *serialized_operation = serialize_operation(LOGIN, 1, parameters);
+    Request *serialized_operation = serialize_operation(LOGIN, 1, parameters);
     free(parameters);
     return serialized_operation;
 }
 
-char *serialize_cp_operation(Profile *profile, char *session_token)
+Request *serialize_cp_operation(Profile *profile, char *session_token)
 {
     char *parameters = malloc(MAX_PARAMETERS_SIZE);
+
+    char image_path[512];
+    sprintf(image_path, "%s%s.jpg", IMAGES_DIRECTORY, profile->email);
+
+    if(access(image_path, F_OK) == -1)
+    {
+        sprintf(image_path, "%s%s.jpg", IMAGES_DIRECTORY, DEFAULT_IMAGE);
+    }
+    printf("image path: %s\n", image_path);
+    FILE *image = fopen(image_path, "rb");
+    if (image == NULL)
+    {
+        fprintf(stderr, "Error opening image file.\n");
+        return NULL;
+    }
+
+    // Get the image size
+    fseek(image, 0, SEEK_END);
+    int image_size = (int) ftell(image);
+
+    // Make sure the image size is not larger than the maximum size allowed
+    if (image_size > MAX_IMAGE_SIZE)
+    {
+        fprintf(stderr, "Image size too big.\n");
+        return NULL;
+    }
+
+    char *image_buffer = malloc(image_size);
+
+    // Copy the image content to the buffer
+    fseek(image, 0, SEEK_SET);
+    fread(image_buffer, 1, image_size, image);
+    fclose(image);
+
     sprintf(
         parameters,
         "{"
@@ -80,7 +152,8 @@ char *serialize_cp_operation(Profile *profile, char *session_token)
         "\"city\": \"%s\","
         "\"course\": \"%s\","
         "\"year_of_degree\": %d,"
-        "\"skills\": \"%s\""
+        "\"skills\": \"%s\","
+        "\"image\": %d"
         "}",
         session_token,
         profile->email,
@@ -89,13 +162,31 @@ char *serialize_cp_operation(Profile *profile, char *session_token)
         profile->city,
         profile->course,
         profile->year_of_degree,
-        profile->skills);
-    char *serialized_operation = serialize_operation(NEW_PROFILE, 7, parameters);
+        profile->skills,
+        image_size
+    );
+
+    Request *request = serialize_operation(NEW_PROFILE, 9, parameters);
+
+    // Concatenate image buffer to serialized operation
+    char *data_with_img = calloc(MAX_MESSAGE_SIZE+image_size, 1);
+    
+    // Copy the data and image to the new buffer
+    memcpy(data_with_img, request->data, request->data_size);
+    memcpy(data_with_img + request->data_size, image_buffer, image_size);
+
+    // Free unused buffers
     free(parameters);
-    return serialized_operation;
+    free(request->data);
+
+    // Update the resquest data and size
+    request->data = data_with_img;
+    request->data_size += image_size;
+
+    return request;
 }
 
-char *serialize_rp_operation(char *email, char *session_token)
+Request *serialize_rp_operation(char *email, char *session_token)
 {
     char *parameters = malloc(MAX_PARAMETERS_SIZE);
     sprintf(
@@ -106,12 +197,12 @@ char *serialize_rp_operation(char *email, char *session_token)
         "}",
         session_token,
         email);
-    char *serialized_operation = serialize_operation(REMOVE_PROFILE_BY_EMAIL, 2, parameters);
+    Request *serialized_operation = serialize_operation(REMOVE_PROFILE_BY_EMAIL, 2, parameters);
     free(parameters);
     return serialized_operation;
 }
 
-char *serialize_logout_operation(char *session_token)
+Request *serialize_logout_operation(char *session_token)
 {
     char *parameters = malloc(MAX_PARAMETERS_SIZE);
     sprintf(
@@ -120,18 +211,18 @@ char *serialize_logout_operation(char *session_token)
         "\"session_token\": \"%s\""
         "}",
         session_token);
-    char *serialized_operation = serialize_operation(LOGOUT, 1, parameters);
+    Request *serialized_operation = serialize_operation(LOGOUT, 1, parameters);
     free(parameters);
     return serialized_operation;
 }
 
-Profile *deserialize_profile(char *response, int *data_len)
+Profile *deserialize_profile(uint8_t *response, int *data_len)
 {
     // Json parsing using cJSON library
-    cJSON *json = cJSON_Parse(response);
+    cJSON *json = cJSON_Parse((char*) response);
     if (json == NULL)
     {
-        printf("Error parsing JSON: %s\n", cJSON_GetErrorPtr());
+        fprintf(stderr, "Error parsing JSON.\n");
         return NULL;
     }
 
@@ -142,7 +233,7 @@ Profile *deserialize_profile(char *response, int *data_len)
         data_len_item == NULL ||
         !cJSON_IsNumber(data_len_item))
     {
-        printf("Invalid response\n");
+        fprintf(stderr, "Invalid response\n");
         return NULL;
     }
 
@@ -185,13 +276,13 @@ Profile *deserialize_profile(char *response, int *data_len)
     return profiles;
 }
 
-char *deserialize_authentication(char *response)
+char *deserialize_authentication(uint8_t *response)
 {
     // Json parsing using cJSON library
-    cJSON *json = cJSON_Parse(response);
+    cJSON *json = cJSON_Parse((char*) response);
     if (json == NULL)
     {
-        printf("Error parsing JSON: %s\n", cJSON_GetErrorPtr());
+        fprintf(stderr, "Error parsing JSON.\n");
         return NULL;
     }
 
@@ -203,31 +294,31 @@ char *deserialize_authentication(char *response)
         status_item == NULL ||
         !cJSON_IsNumber(status_item))
     {
-        printf("Invalid response.\n");
+        fprintf(stderr, "Invalid response.\n");
         return NULL;
     }
 
     if (status_item->valueint == 401)
     {
-        printf("Invalid password.\n");
+        fprintf(stderr, "Invalid password.\n");
         return NULL;
     }
     if (status_item->valueint == 400)
     {
-        printf("Authentication Fail.\n");
+        fprintf(stderr, "Authentication Fail.\n");
         return NULL;
     }
 
     return session_token_item->valuestring;
 }
 
-char *deserialize_admin_operation_response(char *response, int *status_p)
+char *deserialize_admin_operation_response(uint8_t *response, int *status_p)
 {
     // Json parsing using cJSON library
-    cJSON *json = cJSON_Parse(response);
+    cJSON *json = cJSON_Parse((char*) response);
     if (json == NULL)
     {
-        printf("Error parsing JSON: %s\n", cJSON_GetErrorPtr());
+        fprintf(stderr, "Error parsing JSON.\n");
         return NULL;
     }
 
@@ -236,7 +327,7 @@ char *deserialize_admin_operation_response(char *response, int *status_p)
 
     if (status_item == NULL || !cJSON_IsNumber(status_item))
     {
-        printf("Invalid response.\n");
+        fprintf(stderr, "Invalid response.\n");
         return NULL;
     }
 
