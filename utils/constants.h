@@ -74,5 +74,10 @@ typedef struct request
     int data_size;
 } Request;
 
+typedef struct response
+{
+    char *data;
+    int data_size;
+} Response;
 
 #endif

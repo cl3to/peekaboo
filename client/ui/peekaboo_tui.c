@@ -72,7 +72,7 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
 
     OperationCode operation_code;
     Request *request = NULL;
-    char *response = NULL;
+    Response *response = NULL;
     int data_len = 0;
     char input[512];
 
@@ -85,12 +85,13 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
         printf("3 - Listar todos os perfis formados em um determinado ano?\n");
         printf("4 - Listar todas as informações de todos os perfis?\n");
         printf("5 - Obter o perfil de uma pessoa a partir do seu email?\n");
+        printf("6 - Baixar a imagem de um perfil a partir do seu email?\n");
         if (!session_token)
-            printf("6 - Logar como administrador?\n");
+            printf("7 - Logar como administrador?\n");
         else {
-            printf("6 - Cadastrar um novo perfil?\n");
-            printf("7 - Remover um perfil a partir do seu email?\n");
-            printf("8 - Sair da conta de administrador?\n");
+            printf("7 - Cadastrar um novo perfil?\n");
+            printf("8 - Remover um perfil a partir do seu email?\n");
+            printf("9 - Sair da conta de administrador?\n");
         }
         printf("0 - Encerrar o programa?\n");
         printf("Digite a opção desejada: ");
@@ -135,7 +136,14 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
             request = serialize_gp_operation(input);
             operation_code = GET_PROFILE_BY_EMAIL;
         }
-        else if (option == 6 && !session_token)
+        else if (option == 6)
+        {
+            email_input(input);
+            printf("Baixando a imagem do perfil de %s...\n", input);
+            request = serialize_dpi_operation(input);
+            operation_code = DOWNLOAD_PROFILE_IMAGE;            
+        }
+        else if (option == 7 && !session_token)
         {
             char *passwd = NULL;
             passwd = getpass("Digite a senha: ");
@@ -145,7 +153,7 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
         }
         else if (session_token)
         {
-            if (option == 6)
+            if (option == 7)
             {
                 Profile new_profile;
                 email_input(new_profile.email);
@@ -166,14 +174,14 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
                 request = serialize_cp_operation(&new_profile, session_token);
                 operation_code = NEW_PROFILE;
             }
-            else if (option == 7)
+            else if (option == 8)
             {
                 email_input(input);
                 printf("Removendo o perfil de %s...\n", input);
                 request = serialize_rp_operation(input, session_token);
                 operation_code = REMOVE_PROFILE_BY_EMAIL;
             }
-            else if (option == 8)
+            else if (option == 9)
             {
                 printf("Saindo da conta de administrador...\n");
                 request = serialize_logout_operation(session_token);
@@ -191,24 +199,43 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
             printf("Escolha uma opção válida!\n");
         }
 
-        // clear_screen();
+        clear_screen();
 
         if (request)
         {
             response = make_request(conn_handler, request);
-            
+
+            if (!response->data_size)
+            {
+                printf("A operação Falhou. Tente novamente!\n");
+                continue;
+            }
+
             if (operation_code <= GET_PROFILE_BY_EMAIL)
             {
-                Profile *profiles = deserialize_profile(response, &data_len);
+                Profile *profiles = deserialize_profile(response->data, &data_len);
                 print_profile(profiles, data_len, operation_code);
                 data_len = 0;
                 free(profiles);
 
             }
+            else if (operation_code == DOWNLOAD_PROFILE_IMAGE)
+            {
+                char image_path[600];
+                sprintf(image_path, "%s%s.jpg", IMAGES_DIRECTORY, input);
+                FILE *image = fopen(image_path, "wb");
+                fseek(image, 0, SEEK_SET);
+                fwrite(response->data, sizeof(char), response->data_size, image);
+                fclose(image);
+                printf("-----------------------------------------\n");
+                printf("Imagem baixada com sucesso em %s.\n", image_path);
+                printf("-----------------------------------------\n");
+                // TODO: Abrir a imagem no visualizador padrão
+            }
             else if (operation_code == LOGIN)
             {
                 printf("-----------------------------------------\n");
-                session_token = deserialize_authentication(response);
+                session_token = deserialize_authentication(response->data);
                 if (session_token)
                     printf("Login realizado com sucesso!\n");
                 else
@@ -219,7 +246,7 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
             else if (session_token)
             {
                 int status;
-                char *status_message = deserialize_admin_operation_response(response, &status);
+                char *status_message = deserialize_admin_operation_response(response->data, &status);
 
                 printf("-----------------------------------------\n");
                 if (status == 200)
@@ -236,6 +263,7 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
 
             free(request->data);
             free(request);
+            free(response->data);
             free(response);
             request = NULL;
             response = NULL;

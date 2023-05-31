@@ -20,7 +20,6 @@
 
 // TODO: Improve context variables
 OperationCode current_operation = EXIT;
-int request_len = 0;
 
 // Check if the received message is valid
 // Parameters:
@@ -115,9 +114,11 @@ int client_send(ConnectionHandler *self, Request *request)
     return 0;
 }
 
-char* client_receive(ConnectionHandler *self)
+Response* client_receive(ConnectionHandler *self)
 {
-    char *rbuffer = calloc(MAXDATASIZE, 1); // Allocating memory for receive buffer
+    char *rbuffer = calloc(MAX_IMAGE_SIZE, 1); // Allocating memory for receive buffer
+    Response *response = malloc(sizeof(Response));
+
     int received_bytes = 0, inspect_status = 0;
     PacketManager packet_manager = {
         .init = init_packet_manager,
@@ -174,9 +175,11 @@ char* client_receive(ConnectionHandler *self)
         }
     }
 
-    strcpy(rbuffer, packet_manager.buffer);
+    memcpy(rbuffer, packet_manager.buffer, packet_manager.used_size);
+    response->data = rbuffer;
+    response->data_size = packet_manager.used_size;
     packet_manager.destroy(&packet_manager);
-    return rbuffer;
+    return response;
 }
 
 void client_disconnect(ConnectionHandler *self)
@@ -184,17 +187,12 @@ void client_disconnect(ConnectionHandler *self)
     close(self->sockfd);
 }
 
-char *make_request(ConnectionHandler *connection, Request *request)
+Response *make_request(ConnectionHandler *connection, Request *request)
 {
+    // Save current operation code in the stub context   
     current_operation = request->operation_code;
-    
-    // NOTE: request_len is the length of the request string + 5 bytes for the
-    // operation code and the JSON END
-    // TODO: How deal with image data in the request?
-    request_len = request->data_size;
-    
-    char *response = NULL;
-    // printf("request:\n%s\n", request+5);
+    Response *response = NULL;
+
     connection->send(connection, request);
     response = connection->receive(connection);
     return response;
@@ -202,9 +200,11 @@ char *make_request(ConnectionHandler *connection, Request *request)
 
 void init_packet_manager(PacketManager *self)
 {
-    self->buffer = calloc(MAXDATASIZE, sizeof(char));
-    self->buffer_size = MAXDATASIZE;
+    self->buffer = calloc(MAX_IMAGE_SIZE, sizeof(char));
+    self->buffer_size = MAX_IMAGE_SIZE;
+    self->used_size = 0;
     self->buffer_end = 0;
+    // self->received_packets = calloc(MAX_SENT_PACKETS>>3, sizeof(uint8_t));
     self->nptr = MAX_SENT_PACKETS;
     self->npr = 0;
     self->completed = 0;
@@ -218,7 +218,55 @@ void destroy_packet_manager(PacketManager *self)
 int inspect(PacketManager *self, char *packet, int packet_size, OperationCode op)
 {
 
-    if (op != DOWNLOAD_PROFILE_IMAGE)
+    if (packet_size <= 0)
+    {
+        fprintf(stderr, "The packet size (%d) is invalid.\n", packet_size);
+        return 1;
+    }
+
+    if (op == DOWNLOAD_PROFILE_IMAGE)
+    {   
+        // TODO: Implement image packet inspection
+        // printf("Image packet inspection\n");
+        
+        // Packet Number (0-total_packets)
+        uint8_t current_packet = (uint8_t) packet[0];
+        // Number of packets to receive
+        uint8_t total_packets = (uint8_t) packet[1];
+        // Size of the data Field in the packet
+        uint16_t data_size = ((uint16_t) packet[2] << 8) | ((uint16_t) packet[3]);
+        // Image size
+        uint32_t image_size = (
+            (uint32_t) packet[4] << 24 |
+            (uint32_t) packet[5] << 16 |
+            (uint32_t) packet[6] << 8 |
+            (uint32_t) packet[7]
+        );
+
+        // Set the number of packets to receive
+        if (current_packet == 0)
+            self->nptr = total_packets;
+
+        int p_index = (image_size / total_packets) * current_packet;
+
+        // Copy the packet data to the correct position in the image buffer
+        memcpy(self->buffer + p_index, packet + 8, data_size);
+        self->npr++;
+        
+        // Update the used size
+        self->used_size += data_size;
+
+        // TODO: Use a bitmap to manage incoming packets if needed
+        // self->received_packets[current_packet >> 3] |= (((uint8_t) 1) << (current_packet & 7));
+
+        if (self->npr == self->nptr)
+        {
+            self->used_size = image_size;
+            self->completed = 1;
+        }
+    }
+
+    else
     {
         // Copy data to buffer
         memcpy(self->buffer + self->buffer_end, packet, packet_size);
@@ -234,31 +282,10 @@ int inspect(PacketManager *self, char *packet, int packet_size, OperationCode op
         }
     
         // Set packet receive as complete
+        self->used_size = packet_size;
         self->completed = 1;
 
         return 0;
     }
-
-    else
-    {   
-        // TODO: Implement image packet inspection
-        printf("Image packet inspection\n");
-        
-        // uint32_t p_data_size;
-
-        // p_data_size = (
-        //     (uint32_t) packet[1] << 24 |
-        //     (uint32_t) packet[2] << 16 |
-        //     (uint32_t) packet[3] << 8 |
-        //     (uint32_t) packet[4]
-        // );
-
-        // self->npr++;
-        // if (self->npr == self->nptr)
-        // {
-        //     self->complete = 1;
-        // }
-    }
-
     return 0;
 }

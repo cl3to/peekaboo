@@ -123,18 +123,23 @@ Request *serialize_cp_operation(Profile *profile, char *session_token)
         return NULL;
     }
 
+    // Get the image size
     fseek(image, 0, SEEK_END);
     int image_size = (int) ftell(image);
+
+    // Make sure the image size is not larger than the maximum size allowed
     if (image_size > MAX_IMAGE_SIZE)
     {
         fprintf(stderr, "Image size too big.\n");
         return NULL;
     }
 
-    fseek(image, 0, SEEK_SET);
-
     char *image_buffer = malloc(image_size);
+
+    // Copy the image content to the buffer
+    fseek(image, 0, SEEK_SET);
     fread(image_buffer, 1, image_size, image);
+    fclose(image);
 
     sprintf(
         parameters,
@@ -160,27 +165,22 @@ Request *serialize_cp_operation(Profile *profile, char *session_token)
         image_size
     );
 
-    Request *request = serialize_operation(NEW_PROFILE, 7, parameters);
+    Request *request = serialize_operation(NEW_PROFILE, 9, parameters);
 
     // Concatenate image buffer to serialized operation
     char *data_with_img = calloc(MAX_MESSAGE_SIZE+image_size, 1);
     
+    // Copy the data and image to the new buffer
     memcpy(data_with_img, request->data, request->data_size);
     memcpy(data_with_img + request->data_size, image_buffer, image_size);
 
+    // Free unused buffers
     free(parameters);
     free(request->data);
+
+    // Update the resquest data and size
     request->data = data_with_img;
-    // int data_size = request->data_size;
     request->data_size += image_size;
-
-    fclose(image);
-
-    // Test if image was correctly concatenated
-    // sprintf(image_path, "%s%s", IMAGES_DIRECTORY, "data_with_img");
-    // image = fopen(image_path, "wb");
-    // fwrite(request->data+data_size, 1, image_size, image);
-    // fclose(image);
 
     return request;
 }
