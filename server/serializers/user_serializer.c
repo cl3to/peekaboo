@@ -49,6 +49,7 @@ response_stream *profiles_by_course_serializer(Profile *profiles, char *course)
   if (course == NULL || strlen(course) == 0)
   {
     fprintf(stderr, "(pid %d) SERVER >>> Invalid academic degree, please provide a valid input.\n", pid);
+    return _make_error_response(FAILURE, 0);
   }
 
   int profiles_amount = get_profiles_by_course(profiles, course);
@@ -56,6 +57,7 @@ response_stream *profiles_by_course_serializer(Profile *profiles, char *course)
   if (profiles_amount < 0)
   {
     fprintf(stderr, "(pid %d) SERVER >>> Failed to retrieve data.\n", pid);
+    return _make_error_response(FAILURE, 0);
   }
 
   response_stream *user_response = (response_stream *)malloc(sizeof(response_stream));
@@ -75,6 +77,7 @@ response_stream *profiles_by_skill_serializer(Profile *profiles, char *skill)
   if (skill == NULL || strlen(skill) == 0)
   {
     fprintf(stderr, "(pid %d) SERVER >>> Invalid skill, please provide a valid input.\n", pid);
+    return _make_error_response(FAILURE, 0);
   }
 
   int profiles_amount = get_profiles_by_skill(profiles, skill);
@@ -82,6 +85,7 @@ response_stream *profiles_by_skill_serializer(Profile *profiles, char *skill)
   if (profiles_amount < 0)
   {
     fprintf(stderr, "(pid %d) SERVER >>> Failed to retrieve data.\n", pid);
+    return _make_error_response(FAILURE, 0);
   }
 
   response_stream *user_response = (response_stream *)malloc(sizeof(response_stream));
@@ -101,6 +105,7 @@ response_stream *profiles_by_year_of_degree_serializer(Profile *profiles, int ye
   if (year_of_degree <= 0)
   {
     fprintf(stderr, "(pid %d) SERVER >>> Invalid year of degree degree, please provide a valid input.\n", pid);
+    return _make_error_response(FAILURE, 0);
   }
 
   int profiles_amount = get_profiles_by_year_of_degree(profiles, year_of_degree);
@@ -108,6 +113,7 @@ response_stream *profiles_by_year_of_degree_serializer(Profile *profiles, int ye
   if (profiles_amount < 0)
   {
     fprintf(stderr, "(pid %d) SERVER >>> Failed to retrieve data.\n", pid);
+    return _make_error_response(FAILURE, 0);
   }
 
   response_stream *user_response = (response_stream *)malloc(sizeof(response_stream));
@@ -128,6 +134,7 @@ response_stream *profiles_serializer(Profile *profiles)
   {
     int pid = getpid();
     fprintf(stderr, "(pid %d) SERVER >>> Failed to retrieve data.\n", pid);
+    return _make_error_response(FAILURE, 0);
   }
 
   response_stream *user_response = (response_stream *)malloc(sizeof(response_stream));
@@ -148,6 +155,7 @@ response_stream *profile_by_email_serializer(Profile *profile, char *email)
   if (check_email_format(email) != 0)
   {
     fprintf(stderr, "(pid %d) SERVER >>> Invalid e-mail! Please, provide a valid e-mail.\n", pid);
+    return _make_error_response(FAILURE, 0);
   }
 
   int profiles_amount = get_profile_by_email(profile, email);
@@ -155,6 +163,7 @@ response_stream *profile_by_email_serializer(Profile *profile, char *email)
   if (profiles_amount < 0)
   {
     fprintf(stderr, "(pid %d) SERVER >>> Failed to retrieve data.\n", pid);
+    return _make_error_response(FAILURE, 0);
   }
 
   response_stream *user_response = (response_stream *)malloc(sizeof(response_stream));
@@ -194,6 +203,7 @@ response_stream *image_by_email(char *email)
   if (check_email_format(email) != 0)
   {
     fprintf(stderr, "(pid %d) SERVER >>> Invalid e-mail! Please, provide a valid e-mail.\n", pid);
+    return _make_error_response(RECOVER_IMAGE_FAILED, 1);
   }
 
   // Get the image size from the database
