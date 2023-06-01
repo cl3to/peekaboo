@@ -9,6 +9,7 @@
 #include "../../lib/sqlite3/sqlite3.h"
 
 #include "../../model/profile.h"
+#include "../../utils/constants.h"
 
 // Store the profile in the database using sqlite3
 // Returns 0 if the profile was stored successfully

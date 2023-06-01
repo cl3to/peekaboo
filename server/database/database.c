@@ -346,7 +346,7 @@ int delete_profile_by_email(char *email)
 
     if (rc != SQLITE_OK)
     {
-        int pid = getpid();
+        int pid =  getpid();
         fprintf(stderr, "(pid %d) SERVER >>> Cannot open database: %s\n", pid, sqlite3_errmsg(db));
         sqlite3_close(db);
         return -1;
@@ -362,6 +362,15 @@ int delete_profile_by_email(char *email)
         sqlite3_free(err_msg);
         sqlite3_close(db);
         return -1;
+    }
+
+    // Delete the profile image 
+    char image_path[MAX_LENGTH_IMAGE_NAME];
+    sprintf(image_path, "%s%s%s", IMAGES_DIRECTORY, email, IMAGE_EXTENSION);
+
+    if (remove(image_path) != 0) {
+        int pid = getpid();
+        fprintf(stderr, "(pid %d) SERVER >>> Failed to delete profile image\n", pid);
     }
 
     sqlite3_close(db);
