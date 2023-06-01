@@ -346,7 +346,7 @@ int delete_profile_by_email(char *email)
 
     if (rc != SQLITE_OK)
     {
-        int pid =  getpid();
+        int pid = getpid();
         fprintf(stderr, "(pid %d) SERVER >>> Cannot open database: %s\n", pid, sqlite3_errmsg(db));
         sqlite3_close(db);
         return -1;
