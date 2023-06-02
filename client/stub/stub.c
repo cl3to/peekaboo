@@ -59,7 +59,7 @@ int client_connect(ConnectionHandler *self, int socktype)
     // If socktype is 1, use TCP sockets, otherwise use UDP sockets
     self->socktype = (socktype) ? SOCK_STREAM : SOCK_DGRAM;
     hints.ai_socktype = self->socktype;
-    
+
     if ((rv = getaddrinfo(self->server_ip, self->server_port, &hints, &servinfo)) != 0)
     {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
@@ -128,7 +128,7 @@ Response* client_receive(ConnectionHandler *self)
 
     packet_manager.init(&packet_manager);
 
-    // TODO: Wait for image data packets from server
+    // Wait for packets to receive completed response
     while(!packet_manager.completed)
     {
         int rv = poll(self->pollfd, 1, TIMEOUT);
@@ -204,7 +204,6 @@ void init_packet_manager(PacketManager *self)
     self->buffer_size = MAX_IMAGE_SIZE;
     self->used_size = 0;
     self->buffer_end = 0;
-    // self->received_packets = calloc(MAX_SENT_PACKETS>>3, sizeof(uint8_t));
     self->nptr = MAX_SENT_PACKETS;
     self->npr = 0;
     self->completed = 0;
@@ -217,7 +216,6 @@ void destroy_packet_manager(PacketManager *self)
 
 int inspect(PacketManager *self, uint8_t *packet, int packet_size, OperationCode op)
 {
-
     if (packet_size <= 0)
     {
         fprintf(stderr, "The packet size (%d) is invalid.\n", packet_size);
@@ -225,10 +223,7 @@ int inspect(PacketManager *self, uint8_t *packet, int packet_size, OperationCode
     }
 
     if (op == DOWNLOAD_PROFILE_IMAGE)
-    {   
-        // TODO: Implement image packet inspection
-        // printf("Image packet inspection\n");
-        
+    {
         // Packet Number (0-total_packets)
         uint8_t current_packet = packet[0];
         // Number of packets to receive
@@ -243,6 +238,14 @@ int inspect(PacketManager *self, uint8_t *packet, int packet_size, OperationCode
             (uint32_t) packet[7]
         );
 
+        if (data_size == 0 || image_size == 0)
+        {
+            memcpy(self->buffer, packet + IMAGE_HEADER_SIZE, packet_size - IMAGE_HEADER_SIZE);
+            self->buffer_size = packet_size - IMAGE_HEADER_SIZE;
+            self->completed = 1;
+            return 0;
+        }
+
         // Set the number of packets to receive
         if (current_packet == 0)
             self->nptr = total_packets;
@@ -251,14 +254,11 @@ int inspect(PacketManager *self, uint8_t *packet, int packet_size, OperationCode
         int p_index = UDP_MAX_CONTENT_DATA_SIZE * current_packet;
 
         // Copy the packet data to the correct position in the image buffer
-        memcpy(self->buffer + p_index, packet + 8, data_size);
+        memcpy(self->buffer + p_index, packet + IMAGE_HEADER_SIZE, data_size);
         self->npr++;
         
         // Update the used size
         self->used_size += data_size;
-
-        // TODO: Use a bitmap to manage incoming packets if needed
-        // self->received_packets[current_packet >> 3] |= (((uint8_t) 1) << (current_packet & 7));
 
         if (self->npr == self->nptr)
         {

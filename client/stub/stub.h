@@ -68,7 +68,6 @@ struct packet_manager
     int buffer_size;
     int used_size; // Used size in the buffer
     int buffer_end; // index of the last byte in the buffer
-    uint8_t *received_packets; // Bitmap used to store the received packets
     int nptr; // number of packets to receive
     int npr; // number of packets received
     uint8_t completed; // flag to indicate if data is completed received

@@ -14,7 +14,7 @@ char *help_message = "Usage: client [OPTIONS]\n"
 
 int main(int argc, char *argv[])
 {
-    char *server_ip = "127.0.0.1";
+    char *server_ip = "0.0.0.0";
     char *server_port = PORT;
     int connected;
     int socket_type = 0;
@@ -50,9 +50,6 @@ int main(int argc, char *argv[])
             return -1;
         }
     }
-
-    if (argc == 2)
-        server_ip = argv[1];
 
     ConnectionHandler conn_handler = {
         .server_ip = server_ip,
