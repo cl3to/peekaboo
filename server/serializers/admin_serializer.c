@@ -212,6 +212,8 @@ response_stream *create_new_profile(char *session_token, char *email, char *name
     // Sabe the profile data and image and check that it was successfully
     if (profile == NULL || store_profile(profile) < 0 || _save_profile_image(email, image, image_size) < 0)
     {
+      // Removes email or image in case of error to maintain consistency
+      delete_profile_by_email(email);
       return _make_admin_response(REGISTRATION_FAILED, NULL);
     }
     return _make_admin_response(SUCCESS, NULL);
