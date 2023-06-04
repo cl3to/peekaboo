@@ -71,7 +71,9 @@ typedef enum StatusCode
 #define SESSION_TOKEN_LENGTH 42                              // Session token length
 #define MAX_SENT_PACKETS 256                                 // Max number of packets that can be sent in a single request
 #define MAX_IMAGE_SIZE 250 * 1024                            // Max size of an image in bytes (250KB)
-#define DEFAULT_IMAGE "default"
+#define DEFAULT_IMAGE "default"                              // Name of the default image used for profiles without images
+#define TCP_FLAG "--tcp"                                     // Flag to user server and client in TCP mode
+#define HELP_FLAG "--help"                                   // Flag to acess the help info of server and client
 
 typedef struct request
 {
