@@ -5,8 +5,6 @@
 #include "../utils/constants.h"
 
 #define SERVER_IP_FLAG "--server"
-#define TCP_FLAG "--tcp"
-#define HELP_FLAG "--help"
 
 char *help_message = "Usage: client [OPTIONS]\n"
                      "Options:\n"

@@ -13,6 +13,9 @@
 #include "../../utils/constants.h"
 #include "../../utils/email_validator.h"
 
+// Global variables to manager the type of connection
+extern int should_use_tcp;
+
 // Global variable to handle the session token
 // This variable is shared between the processes
 extern char *expected_session_token;

@@ -10,6 +10,9 @@ response_stream *_make_error_response(StatusCode status_code, int is_image)
 
   sprintf(error_msg, "{\"status\":%d}", status_code);
   response_stream *error_response = (response_stream *)malloc(sizeof(response_stream));
+  error_response->data = (char *)malloc(BUFFER_SIZE);
+  error_response->data_size = strlen(error_msg);
+  error_response->is_image=is_image;
   error_response->next = NULL;
 
   if (is_image)
@@ -18,7 +21,7 @@ response_stream *_make_error_response(StatusCode status_code, int is_image)
     uint8_t header[IMAGE_HEADER_SIZE];
     // Build the header error message
     // The current message number
-    header[0] = 1;
+    header[0] = 0;
     // The total of messages
     header[1] = 1;
     // Put zeros in the image info bits because there is no imagem because the error
@@ -62,7 +65,7 @@ response_stream *profiles_by_course_serializer(Profile *profiles, char *course)
 
   response_stream *user_response = (response_stream *)malloc(sizeof(response_stream));
   user_response->data = make_user_response_msg(profiles, profiles_amount, LIST_BY_COURSE);
-  user_response->data_size = strlen((char*)user_response->data);
+  user_response->data_size = strlen((char *)user_response->data);
   user_response->is_image = 0;
   user_response->next = NULL;
 
@@ -90,7 +93,7 @@ response_stream *profiles_by_skill_serializer(Profile *profiles, char *skill)
 
   response_stream *user_response = (response_stream *)malloc(sizeof(response_stream));
   user_response->data = make_user_response_msg(profiles, profiles_amount, LIST_BY_SKILL);
-  user_response->data_size = strlen((char*)user_response->data);
+  user_response->data_size = strlen((char *)user_response->data);
   user_response->is_image = 0;
   user_response->next = NULL;
 
@@ -118,7 +121,7 @@ response_stream *profiles_by_year_of_degree_serializer(Profile *profiles, int ye
 
   response_stream *user_response = (response_stream *)malloc(sizeof(response_stream));
   user_response->data = make_user_response_msg(profiles, profiles_amount, LIST_BY_YEAR);
-  user_response->data_size = strlen((char*)user_response->data);
+  user_response->data_size = strlen((char *)user_response->data);
   user_response->is_image = 0;
   user_response->next = NULL;
 
@@ -139,7 +142,7 @@ response_stream *profiles_serializer(Profile *profiles)
 
   response_stream *user_response = (response_stream *)malloc(sizeof(response_stream));
   user_response->data = make_user_response_msg(profiles, profiles_amount, LIST_ALL_PROFILES);
-  user_response->data_size = strlen((char*)user_response->data);
+  user_response->data_size = strlen((char *)user_response->data);
   user_response->is_image = 0;
   user_response->next = NULL;
 
@@ -168,7 +171,7 @@ response_stream *profile_by_email_serializer(Profile *profile, char *email)
 
   response_stream *user_response = (response_stream *)malloc(sizeof(response_stream));
   user_response->data = make_user_response_msg(profile, profiles_amount, GET_PROFILE_BY_EMAIL);
-  user_response->data_size = strlen((char*)user_response->data);
+  user_response->data_size = strlen((char *)user_response->data);
   user_response->is_image = 0;
   user_response->next = NULL;
 
@@ -181,7 +184,8 @@ response_stream *image_by_email(char *email)
   // Process ID for prints log of the server
   int pid = getpid();
 
-  if(should_use_tcp == 1){
+  if (should_use_tcp == 1)
+  {
     fprintf(stderr, "(pid %d) SERVER >>> Image download can only be performed with UDP connection.\n", pid);
     return _make_error_response(RECOVER_IMAGE_FAILED, 1);
   }
@@ -207,24 +211,35 @@ response_stream *image_by_email(char *email)
   }
 
   // Get the image size from the database
+  // Returns the image size
+  // Returns 0 if the profile has no image
+  // Returns -1 if error or if the given profile not exists
   image_size = get_image_size_by_email(email);
 
   // Define the image path
   // Send the default image if dont find the image size in the database
-  if (image_size == -1)
+
+  switch (image_size)
   {
+  case -1:
+    // In case of error return a error message
+    return _make_error_response(RECOVER_IMAGE_FAILED, 1);
+  case 0:
+    // Profile without image, use the default image
     image_size = DEFAULT_IMAGE_SIZE;
     strcat(filepath, "default.jpg");
-  }
-  else
-  {
+    break;
+  default:
+    // Define the size of the profile image
     strcat(filepath, email);
     strcat(filepath, IMAGE_EXTENSION);
+    break;
   }
 
   // Calculate the number total of messages
   total_messages = image_size / UDP_MAX_CONTENT_DATA_SIZE;
-  if(image_size % UDP_MAX_CONTENT_DATA_SIZE != 0){
+  if (image_size % UDP_MAX_CONTENT_DATA_SIZE != 0)
+  {
     total_messages++;
   }
 

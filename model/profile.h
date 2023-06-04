@@ -15,7 +15,7 @@ struct profile
     char course[100];
     int year_of_degree;
     char skills[300]; // comma separated list of skills
-    int image;        // path to the image
+    int image;        // image length in bytes
 };
 
 typedef struct profile Profile;

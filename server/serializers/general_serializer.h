@@ -13,7 +13,7 @@
 #include "user_serializer.h"
 
 // Serializer to make json parsing and choice the correct serializer function
-// Returns a response with a json string
+// Returns a response_stream with the response
 response_stream *general_serializer(Profile *profiles, char *request_body);
 
 #endif
