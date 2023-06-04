@@ -207,10 +207,15 @@ response_stream *create_new_profile(char *session_token, char *email, char *name
   if (validate_session_token(session_token) == 0)
   {
     Profile *profile = new_profile(
-        email, name, last_name, city, course, year_of_degree, skills, image_size);
+        email, name, last_name, city, course, year_of_degree, skills, should_use_tcp == 1? 0 : image_size);
 
-    // Sabe the profile data and image and check that it was successfully
-    if (profile == NULL || store_profile(profile) < 0 || _save_profile_image(email, image, image_size) < 0)
+    // Save the profile data and image(in UDP connection) and check that it was successfully
+    if (profile == NULL || store_profile(profile) < 0)
+    {
+      return _make_admin_response(REGISTRATION_FAILED, NULL);
+    }
+    // Try add given image in UDP connection
+    if (should_use_tcp == 0 && _save_profile_image(email, image, image_size) < 0)
     {
       // Removes email or image in case of error to maintain consistency
       delete_profile_by_email(email);
