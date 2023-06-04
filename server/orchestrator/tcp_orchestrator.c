@@ -33,6 +33,7 @@ void _handle_tcp_client_requests(int new_fd)
     // The BUFFER_SIZE limit the maximum number of profiles in the system
     const int BUFFER_SIZE = sizeof(Profile) * 64;
     Profile *profiles = (Profile *)malloc(BUFFER_SIZE);
+    response_stream *stream_response;
 
     // Create messages variables
     // The MAXDATASIZE limit the maximum number of bytes we can get at once
@@ -82,8 +83,9 @@ void _handle_tcp_client_requests(int new_fd)
         Then the answer accesses this pointer directly.
         */
         // TODO: improve the send function and use the linked list correctly
-        response = general_serializer(profiles, request)->data;
-        response_len = strlen(response);
+        stream_response = general_serializer(profiles, request);
+        response = stream_response->data;
+        response_len = stream_response->data_size;
 
         printf("(pid %d) SERVER >>> Sending response with %d bytes\n", pid, response_len);
         printf("(pid %d) SERVER >>> Sending response message: '%s'\n", pid, response);
