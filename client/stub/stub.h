@@ -15,7 +15,7 @@ typedef void (*disconnect_function_t)(ConnectionHandler *self);
 // Abstract the connection operations in the client side
 struct connection_handler
 {
-    int socktype; // socket type
+    int socktype; // socket type (0 UDP, 1 TCP)
     int sockfd; // socket file descriptor
     char *server_ip;
     char *server_port;

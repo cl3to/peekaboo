@@ -241,7 +241,7 @@ int inspect(PacketManager *self, uint8_t *packet, int packet_size, OperationCode
         if (data_size == 0 || image_size == 0)
         {
             memcpy(self->buffer, packet + IMAGE_HEADER_SIZE, packet_size - IMAGE_HEADER_SIZE);
-            self->buffer_size = packet_size - IMAGE_HEADER_SIZE;
+            self->used_size = packet_size - IMAGE_HEADER_SIZE;
             self->completed = 1;
             return 0;
         }

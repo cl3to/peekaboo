@@ -54,16 +54,14 @@ CREATE TABLE IF NOT EXISTS profiles (
   course VARCHAR(100),
   year_of_degree INTEGER,
   skills VARCHAR(300),
-  image INTEGER DEFAULT NULL
+  image INTEGER DEFAULT 0
 );
 
 -- Import data from the CSV file "profiles.csv"
 .mode csv
 .import scripts/profiles.csv profiles
 
--- TODO: Add default image size to all profiles
--- Add default image size to all profiles
-UPDATE profiles SET image = NULL;
+UPDATE profiles SET image = 0;
 
 EOF
 

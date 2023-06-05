@@ -236,6 +236,19 @@ response_stream *image_by_email(char *email)
     break;
   }
 
+  // Open the image file
+  fp = fopen(filepath, "rb");
+  if (fp == NULL)
+  {
+    printf("(pid %d) SERVER >>> Error opening image file\n", pid);
+    return _make_error_response(RECOVER_IMAGE_FAILED, 1);
+  }
+
+  // Get the image size
+  fseek(fp, 0, SEEK_END);
+  image_size = (int) ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+
   // Calculate the number total of messages
   total_messages = image_size / UDP_MAX_CONTENT_DATA_SIZE;
   if (image_size % UDP_MAX_CONTENT_DATA_SIZE != 0)
@@ -253,13 +266,6 @@ response_stream *image_by_email(char *email)
   header[6] = (image_size >> 8) & 0xFF;
   header[7] = image_size & 0xFF;
 
-  // Open the image file
-  fp = fopen(filepath, "rb");
-  if (fp == NULL)
-  {
-    printf("(pid %d) SERVER >>> Error opening image file\n", pid);
-    return _make_error_response(RECOVER_IMAGE_FAILED, 1);
-  }
 
   // Read the image in packets of 1024 bytes and store in the response_stream struct
   for (message_number = 0; message_number < total_messages; message_number++)

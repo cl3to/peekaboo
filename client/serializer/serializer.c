@@ -116,7 +116,7 @@ Request *serialize_cp_operation(Profile *profile, char *session_token)
     {
         sprintf(image_path, "%s%s.jpg", IMAGES_DIRECTORY, DEFAULT_IMAGE);
     }
-    printf("image path: %s\n", image_path);
+
     FILE *image = fopen(image_path, "rb");
     if (image == NULL)
     {
