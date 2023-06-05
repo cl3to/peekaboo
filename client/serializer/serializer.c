@@ -34,9 +34,6 @@ Request *serialize_operation(OperationCode operation_code, int parameters_length
     // Put data in the next bytes
     memcpy(client_message + 5, temp, message_size-5);
 
-    // printf("operation code: %d\n", (int) client_message[0]);
-    // printf("serialized operation:\n%s\n", client_message+5);
-
     Request *request = malloc(sizeof(Request));
     request->operation_code = operation_code;
     request->data = client_message;
