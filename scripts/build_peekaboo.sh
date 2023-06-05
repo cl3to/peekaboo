@@ -35,6 +35,13 @@ echo "=============================="
 echo "Creating database..."
 rm -f bin/profiles.db
 
+# create images directory if it doesn't exist mantaining the files inside it
+mkdir -p bin/images
+# Copy default image to images directory
+cp scripts/default.jpg bin/images/default.jpg
+# Get the default image size in bytes
+DEFAULT_IMAGE_SIZE=$(wc -c < bin/images/default.jpg)
+
 # Create a new SQLite3 database file named "profiles.db"
 sqlite3 bin/profiles.db <<EOF
 
@@ -47,12 +54,14 @@ CREATE TABLE IF NOT EXISTS profiles (
   course VARCHAR(100),
   year_of_degree INTEGER,
   skills VARCHAR(300),
-  image INTEGER DEFAULT NULL
+  image INTEGER DEFAULT 0
 );
 
 -- Import data from the CSV file "profiles.csv"
 .mode csv
 .import scripts/profiles.csv profiles
+
+UPDATE profiles SET image = 0;
 
 EOF
 

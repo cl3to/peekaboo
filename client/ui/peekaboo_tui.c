@@ -11,6 +11,14 @@ void clear_screen() {
     system("clear");
 }
 
+void open_image(char *path)
+{
+    int len_path = strlen(path);
+    char command[len_path+100];
+    sprintf(command, "xdg-open %s >/dev/null 2>&1", path);
+    system(command);
+}
+
 void welcome_messages(void)
 {
     printf("Bem vindo ao Peekaboo!\n");
@@ -203,11 +211,23 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
 
         if (request)
         {
+            if (operation_code == DOWNLOAD_PROFILE_IMAGE && conn_handler->socktype == 1)
+            {
+                // If the connection is TCP, the download of images is not supported
+                printf("-----------------------------------------------------------\n");
+                printf("O Download de imagens não é suportado no protocolo TCP!\n");
+                printf("-----------------------------------------------------------\n");
+                continue;
+            }
+
             response = make_request(conn_handler, request);
 
             if (!response->data_size)
             {
+                // If the response length is zero, an error has occurred
+                printf("-----------------------------------------------------------\n");
                 printf("A operação Falhou. Tente novamente!\n");
+                printf("-----------------------------------------------------------\n");
                 continue;
             }
 
@@ -221,6 +241,14 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
             }
             else if (operation_code == DOWNLOAD_PROFILE_IMAGE)
             {
+                // If the response length is short, an error has occurred
+                if (response->data_size < 100){
+                    printf("----------------------------------------------------------------\n");
+                    printf("Ocorreu um erro durante o download da imagem. Tente novamente!\n");
+                    printf("----------------------------------------------------------------\n");
+                    continue;
+                }
+
                 char image_path[600];
                 sprintf(image_path, "%speekaboo_%s.jpg", IMAGES_DIRECTORY, input);
 
@@ -228,10 +256,10 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
                 fseek(image, 0, SEEK_SET);
                 fwrite(response->data, sizeof(char), response->data_size, image);
                 fclose(image);
-                printf("-----------------------------------------\n");
+                printf("----------------------------------------------------------------\n");
                 printf("Imagem baixada com sucesso em %s.\n", image_path);
-                printf("-----------------------------------------\n");
-                // TODO: Abrir a imagem no visualizador padrão
+                printf("----------------------------------------------------------------\n");
+                open_image(image_path);
             }
             else if (operation_code == LOGIN)
             {

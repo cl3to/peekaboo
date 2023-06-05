@@ -34,9 +34,6 @@ Request *serialize_operation(OperationCode operation_code, int parameters_length
     // Put data in the next bytes
     memcpy(client_message + 5, temp, message_size-5);
 
-    // printf("operation code: %d\n", (int) client_message[0]);
-    // printf("serialized operation:\n%s\n", client_message+5);
-
     Request *request = malloc(sizeof(Request));
     request->operation_code = operation_code;
     request->data = client_message;
@@ -116,7 +113,7 @@ Request *serialize_cp_operation(Profile *profile, char *session_token)
     {
         sprintf(image_path, "%s%s.jpg", IMAGES_DIRECTORY, DEFAULT_IMAGE);
     }
-    printf("image path: %s\n", image_path);
+
     FILE *image = fopen(image_path, "rb");
     if (image == NULL)
     {

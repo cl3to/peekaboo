@@ -11,7 +11,7 @@ CLIENT_OBJTS = $(OBJDIR)/main.o $(OBJDIR)/stub.o $(OBJDIR)/tui.o \
 # Build client code
 
 # Build the client
-client: $(CLIENT_OBJTS)
+client: clean $(CLIENT_OBJTS)
 	$(CC) $(CFLAGS) -o ../bin/client $(CLIENT_OBJTS)
 
 # Build the client object file
