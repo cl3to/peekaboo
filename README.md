@@ -1,7 +1,7 @@
 # peekaboo
 Projeto da Disciplina MC833 - Programação de Redes de Computadores
 
-O **peekaboo** é uma aplicação simples com o fim de gerenciar perfis profissionais e acadêmicos de pessoas. A princípio o software opera sobre o protocolo TCP e em breve também será compatível com UDP. O nome **peekaboo** foi uma sugestão do ChatGPT com base nos requisitos do sistema e faz referência a brincadeira de esconde-esconde feita com crianças, fazendo alusão às informações dos perfis que a aplicação revela.
+O **peekaboo** é uma aplicação simples com o fim de gerenciar perfis profissionais e acadêmicos de pessoas. A aplicação funciona no modelo cliente e servidor, podendo operar nos protocolos TCP ou UDP. O nome **peekaboo** foi uma sugestão do ChatGPT com base nos requisitos do sistema e faz referência a brincadeira de esconde-esconde feita com crianças, fazendo alusão às informações dos perfis que a aplicação revela.
 
 ## Developers
 
@@ -30,9 +30,16 @@ cd bin
 ./server
 ```
 
-Ainda no diretório `bin`, inicie o binário do cliente, indicando opcionalmente o ip do servidor (localhost por padrão).
+Ainda no diretório `bin`, inicie o binário do cliente, indicando opcionalmente o ip do servidor (localhost por padrão) utilizando a flag `--server`.
 ```bash
-./client <server_ip>
+./client --server <server_ip>
+```
+
+Por padrão o peekaboo opera no modo UDP, caso deseje utilizar o protocolo TCP inicie ambos servidor e cliente com a flag `--tcp`. Exemplo:
+```bash
+cd bin
+./server --tcp &
+./client --server <server_ip> --tcp
 ```
 
 ## Exemplo de funcionamento
