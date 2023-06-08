@@ -222,12 +222,21 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
 
             response = make_request(conn_handler, request);
 
-            if (!response->data_size)
+            if (!response || !response->data_size)
             {
                 // If the response length is zero, an error has occurred
                 printf("-----------------------------------------------------------\n");
                 printf("A operação Falhou. Tente novamente!\n");
                 printf("-----------------------------------------------------------\n");
+                free(request->data);
+                free(request);
+                if (response)
+                {
+                    free(response->data);
+                    free(response);
+                }
+                request = NULL;
+                response = NULL;
                 continue;
             }
 
@@ -256,9 +265,9 @@ void peekaboo_tui(ConnectionHandler *conn_handler)
                 fseek(image, 0, SEEK_SET);
                 fwrite(response->data, sizeof(char), response->data_size, image);
                 fclose(image);
-                printf("----------------------------------------------------------------\n");
-                printf("Imagem baixada com sucesso em %s.\n", image_path);
-                printf("----------------------------------------------------------------\n");
+                printf("-------------------------------------------------------------------------------------\n");
+                printf("Imagem baixada com sucesso em bin/%s.\n", image_path);
+                printf("-------------------------------------------------------------------------------------\n");
                 open_image(image_path);
             }
             else if (operation_code == LOGIN)

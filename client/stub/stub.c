@@ -40,6 +40,14 @@ void check_received_message(uint8_t *message, int *depth, int start, int end)
     }
 }
 
+// Clean stub resources
+void clean_stub(uint8_t *rbuffer, Response *response, PacketManager *packet_manager)
+{
+    free(rbuffer);
+    free(response);
+    packet_manager->destroy(packet_manager);
+}
+
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
 {
@@ -117,7 +125,7 @@ int client_send(ConnectionHandler *self, Request *request)
 Response* client_receive(ConnectionHandler *self)
 {
     uint8_t *rbuffer = calloc(MAX_IMAGE_SIZE, 1); // Allocating memory for receive buffer
-    Response *response = malloc(sizeof(Response));
+    Response *response = malloc(sizeof(Response)); // Allocating memory for response
 
     int received_bytes = 0, inspect_status = 0;
     PacketManager packet_manager = {
@@ -135,12 +143,14 @@ Response* client_receive(ConnectionHandler *self)
         if (rv == -1)
         {
             perror("poll"); // error occurred in poll()
-            break;
+            clean_stub(rbuffer, response, &packet_manager);
+            return NULL;
         }
         else if (rv == 0)
         {
             fprintf(stderr, "Timeout occurred! No data after %d seconds.\n", TIMEOUT / 1000);
-            break;
+            clean_stub(rbuffer, response, &packet_manager);
+            return NULL;
         }
         else
         {
@@ -151,26 +161,27 @@ Response* client_receive(ConnectionHandler *self)
                 if (received_bytes < 0)
                 {
                     perror("recv");
-                    break;
+                    clean_stub(rbuffer, response, &packet_manager);
+                    return NULL;
                 }
 
-                // printf("received buffer:\n%s\n", rbuffer);
-                // printf("inspected buffer:\n%s\n", packet_manager.buffer);
+                // Inspect the received packet
                 inspect_status = packet_manager.inspect(
                     &packet_manager, rbuffer, received_bytes, current_operation
                 );
-                // printf("inspected buffer:\n%s\n", packet_manager.buffer);
 
                 if (inspect_status)
                 {
                     fprintf(stderr, "failed to inspect packet.\n");
-                    break;
+                    clean_stub(rbuffer, response, &packet_manager);
+                    return NULL;
                 }
             }
             else if (self->pollfd[0].revents & POLLERR)
             {
-                fprintf(stderr,"Error establishing communication with the server.\n");
-                break;
+                fprintf(stderr,"Error sending a message to the server.\n");
+                clean_stub(rbuffer, response, &packet_manager);
+                return NULL;
             }
         }
     }
@@ -193,7 +204,12 @@ Response *make_request(ConnectionHandler *connection, Request *request)
     current_operation = request->operation_code;
     Response *response = NULL;
 
-    connection->send(connection, request);
+    int send_result = connection->send(connection, request);
+    if (send_result == -1)
+    {
+        fprintf(stderr, "Failed to send request.\n");
+        return NULL;
+    }
     response = connection->receive(connection);
     return response;
 }
@@ -273,9 +289,9 @@ int inspect(PacketManager *self, uint8_t *packet, int packet_size, OperationCode
         memcpy(self->buffer + self->buffer_end, packet, packet_size);
         self->buffer_end += packet_size;
 
+        // Check if the JSON message is complete
         int depth = 0;
         check_received_message(self->buffer, &depth, 0, self->buffer_end);
-
         if (depth)
         {
             fprintf(stderr, "Incomplete JSON message.\n");
@@ -285,8 +301,7 @@ int inspect(PacketManager *self, uint8_t *packet, int packet_size, OperationCode
         // Set packet receive as complete
         self->used_size = packet_size;
         self->completed = 1;
-
-        return 0;
     }
+
     return 0;
 }

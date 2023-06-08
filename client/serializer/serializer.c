@@ -107,7 +107,7 @@ Request *serialize_cp_operation(Profile *profile, char *session_token)
     char *parameters = malloc(MAX_PARAMETERS_SIZE);
 
     char image_path[512];
-    sprintf(image_path, "%s%s.jpg", IMAGES_DIRECTORY, profile->email);
+    sprintf(image_path, "%speekaboo_%s.jpg", IMAGES_DIRECTORY, profile->email);
 
     if(access(image_path, F_OK) == -1)
     {
