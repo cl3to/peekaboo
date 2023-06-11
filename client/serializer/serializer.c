@@ -223,6 +223,15 @@ Profile *deserialize_profile(uint8_t *response, int *data_len)
         return NULL;
     }
 
+    cJSON *status;
+    status = cJSON_GetObjectItemCaseSensitive(json, "status");
+    if (status != NULL)
+    {
+        fprintf(stderr, "Profile not found.\n");
+        return NULL;
+    }
+
+
     cJSON *data_len_item, *data_item, *profile_item;
     data_len_item = cJSON_GetObjectItemCaseSensitive(json, "data_length");
 
