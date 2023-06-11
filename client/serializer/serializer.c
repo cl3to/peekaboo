@@ -107,7 +107,7 @@ Request *serialize_cp_operation(Profile *profile, char *session_token)
     char *parameters = malloc(MAX_PARAMETERS_SIZE);
 
     char image_path[512];
-    sprintf(image_path, "%s%s.jpg", IMAGES_DIRECTORY, profile->email);
+    sprintf(image_path, "%speekaboo_%s.jpg", IMAGES_DIRECTORY, profile->email);
 
     if(access(image_path, F_OK) == -1)
     {
@@ -222,6 +222,15 @@ Profile *deserialize_profile(uint8_t *response, int *data_len)
         fprintf(stderr, "Error parsing JSON.\n");
         return NULL;
     }
+
+    cJSON *status;
+    status = cJSON_GetObjectItemCaseSensitive(json, "status");
+    if (status != NULL)
+    {
+        fprintf(stderr, "Profile not found.\n");
+        return NULL;
+    }
+
 
     cJSON *data_len_item, *data_item, *profile_item;
     data_len_item = cJSON_GetObjectItemCaseSensitive(json, "data_length");
