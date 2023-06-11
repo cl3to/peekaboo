@@ -1,20 +1,20 @@
-ana@peekaboo.io,Ana,Silva,São Paulo,Ciência da Computação,2020,"Java,Python,SQL,HTML,CSS",""
-bruno@peekaboo.io,Bruno,Santos,Rio de Janeiro,Marketing,2018,"SEO,Google Analytics,Marketing de Conteúdo,Email Marketing",""
-carla@peekaboo.io,Carla,Almeida,São Paulo,Medicina,2021,"Anatomia,Fisiologia,Patologia,Medicina Interna,Farmacologia",""
-danilo@peekaboo.io,Danilo,Rodrigues,Belo Horizonte,Arquitetura,2017,"AutoCAD,SketchUp,Modelagem 3D,Projeto Arquitetônico,Gerenciamento de Projetos",""
-elisa@peekaboo.io,Elisa,Fernandes,Campinas,Direito,2019,"Direito Civil,Direito Penal,Contratos,Direito Empresarial",""
-fabio@peekaboo.io,Fábio,Moreira,São Paulo,Finanças,2015,"Análise Financeira,Investimentos,Gerenciamento de Portfólio,Modelagem Financeira",""
-gabriela@peekaboo.io,Gabriela,Oliveira,Brasília,Relações Internacionais,2022,"Política Externa,Direito Internacional,Globalização,Economia",""
-hugo@peekaboo.io,Hugo,Silveira,Recife,História,2016,"História Moderna,História Antiga,História da Arte,Pesquisa Histórica",""
-izabel@peekaboo.io,Izabel,Pereira,Rio de Janeiro,Psicologia,2020,"Psicologia Cognitiva,Avaliação Psicológica,Psicoterapia,Neurociência",""
-joao@peekaboo.io,João,Ribeiro,Porto Alegre,Engenharia Elétrica,2018,"Sistemas de Potência,Eletrônica,Sistemas de Controle,Robótica",""
-karina@peekaboo.io,Karina,Lima,Curitiba,Ciência Ambiental,2021,"Política Ambiental,Mudanças Climáticas,Gestão de Água,Biologia da Conservação",""
-lucas@peekaboo.io,Lucas,Santana,Fortaleza,Jornalismo,2017,"Jornalismo Investigativo,Jornalismo de Dados,Storytelling Visual,Jornalismo Internacional",""
-mariana@peekaboo.io,Mariana,Alves,Belo Horizonte,Química,2020,"Química Orgânica,Química Física,Química Analítica,Engenharia Química",""
-nina@peekaboo.io,Nina,Rodrigues,Recife,História da Arte,2019,"Arte Moderna,Arte Contemporânea,Curadoria,Design de Exposições",""
-oscar@peekaboo.io,Oscar,Santos,Rio de Janeiro,Engenharia de Software,2023,"Desenvolvimento Web,Desenvolvimento Mobile,Banco de Dados,Segurança da Informação",""
-paulo@peekaboo.io,Paulo,Souza,Salvador,Gestão Empresarial,2022,"Gestão Financeira,Marketing Digital,Planejamento Estratégico,Recursos Humanos",""
-rafaela@peekaboo.io,Rafaela,Oliveira,Florianópolis,Arquitetura e Urbanismo,2018,"Design de Interiores,Conforto Ambiental,Projeto Urbanístico,História da Arquitetura",""
-samuel@peekaboo.io,Samuel,Rocha,Belo Horizonte,Engenharia Mecânica,2019,"Termodinâmica,Mecânica dos Fluidos,Projeto de Máquinas,Manufatura",""
-tania@peekaboo.io,Tânia,Gonçalves,Recife,Medicina Veterinária,2021,"Anatomia Animal,Patologia Clínica Veterinária,Parasitologia,Gestão em Saúde Animal",""
-vitor@peekaboo.io,Vitor,Fernandes,São Paulo,Design Gráfico,2017,"Photoshop,Illustrator,InDesign,Design de Interfaces",""
+ana@peekaboo.io,Ana,Silva,São Paulo,Ciência da Computação,2020,"Java,Python,SQL,HTML,CSS",
+bruno@peekaboo.io,Bruno,Santos,Rio de Janeiro,Marketing,2018,"SEO,Google Analytics,Marketing de Conteúdo,Email Marketing",
+carla@peekaboo.io,Carla,Almeida,São Paulo,Medicina,2021,"Anatomia,Fisiologia,Patologia,Medicina Interna,Farmacologia",
+danilo@peekaboo.io,Danilo,Rodrigues,Belo Horizonte,Arquitetura,2017,"AutoCAD,SketchUp,Modelagem 3D,Projeto Arquitetônico,Gerenciamento de Projetos",
+elisa@peekaboo.io,Elisa,Fernandes,Campinas,Direito,2019,"Direito Civil,Direito Penal,Contratos,Direito Empresarial",
+fabio@peekaboo.io,Fábio,Moreira,São Paulo,Finanças,2015,"Análise Financeira,Investimentos,Gerenciamento de Portfólio,Modelagem Financeira",
+gabriela@peekaboo.io,Gabriela,Oliveira,Brasília,Relações Internacionais,2022,"Política Externa,Direito Internacional,Globalização,Economia",
+hugo@peekaboo.io,Hugo,Silveira,Recife,História,2016,"História Moderna,História Antiga,História da Arte,Pesquisa Histórica",
+izabel@peekaboo.io,Izabel,Pereira,Rio de Janeiro,Psicologia,2020,"Psicologia Cognitiva,Avaliação Psicológica,Psicoterapia,Neurociência",
+joao@peekaboo.io,João,Ribeiro,Porto Alegre,Engenharia Elétrica,2018,"Sistemas de Potência,Eletrônica,Sistemas de Controle,Robótica",
+karina@peekaboo.io,Karina,Lima,Curitiba,Ciência Ambiental,2021,"Política Ambiental,Mudanças Climáticas,Gestão de Água,Biologia da Conservação",
+lucas@peekaboo.io,Lucas,Santana,Fortaleza,Jornalismo,2017,"Jornalismo Investigativo,Jornalismo de Dados,Storytelling Visual,Jornalismo Internacional",
+mariana@peekaboo.io,Mariana,Alves,Belo Horizonte,Química,2020,"Química Orgânica,Química Física,Química Analítica,Engenharia Química",
+nina@peekaboo.io,Nina,Rodrigues,Recife,História da Arte,2019,"Arte Moderna,Arte Contemporânea,Curadoria,Design de Exposições",
+oscar@peekaboo.io,Oscar,Santos,Rio de Janeiro,Engenharia de Software,2023,"Desenvolvimento Web,Desenvolvimento Mobile,Banco de Dados,Segurança da Informação",
+paulo@peekaboo.io,Paulo,Souza,Salvador,Gestão Empresarial,2022,"Gestão Financeira,Marketing Digital,Planejamento Estratégico,Recursos Humanos",
+rafaela@peekaboo.io,Rafaela,Oliveira,Florianópolis,Arquitetura e Urbanismo,2018,"Design de Interiores,Conforto Ambiental,Projeto Urbanístico,História da Arquitetura",
+samuel@peekaboo.io,Samuel,Rocha,Belo Horizonte,Engenharia Mecânica,2019,"Termodinâmica,Mecânica dos Fluidos,Projeto de Máquinas,Manufatura",
+tania@peekaboo.io,Tânia,Gonçalves,Recife,Medicina Veterinária,2021,"Anatomia Animal,Patologia Clínica Veterinária,Parasitologia,Gestão em Saúde Animal",
+vitor@peekaboo.io,Vitor,Fernandes,São Paulo,Design Gráfico,2017,"Photoshop,Illustrator,InDesign,Design de Interfaces",

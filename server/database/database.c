@@ -47,7 +47,7 @@ void create_profiles_table()
                               "course VARCHAR(100), "
                               "year_of_degree INTEGER, "
                               "skills VARCHAR(300), "
-                              "image VARCHAR(200)"
+                              "image INTEGER"
                               ");",
                           0, 0, &err_msg);
     if (rc != SQLITE_OK)
@@ -72,7 +72,7 @@ int store_profile(Profile *profile)
     // Construct the SQL statement to insert a new profile
     sql = sqlite3_mprintf(
         "INSERT INTO profiles (email, name, last_name, city, course, year_of_degree, skills, image) "
-        "VALUES ('%q', '%q', '%q', '%q', '%q', %d, '%q', '%q');",
+        "VALUES ('%q', '%q', '%q', '%q', '%q', %d, '%q', '%d');",
         profile->email, profile->name, profile->last_name, profile->city, profile->course,
         profile->year_of_degree, profile->skills, profile->image);
 
@@ -279,11 +279,6 @@ int get_profiles(Profile *profiles)
         profiles[i].year_of_degree = sqlite3_column_int(stmt, 5);
         strcpy(profiles[i].skills, (const char *)sqlite3_column_text(stmt, 6));
 
-        char *image_path = (char *)sqlite3_column_text(stmt, 7);
-        if (image_path != NULL)
-        {
-            strcpy(profiles[i].image, image_path);
-        }
         i++;
     }
 
@@ -337,12 +332,6 @@ int get_profile_by_email(Profile *profile, char *email)
     profile->year_of_degree = atoi(result[cols + 5]);
     strcpy(profile->skills, result[cols + 6]);
 
-    char *image_path = result[cols + 7];
-    if (image_path != NULL)
-    {
-        strcpy(profile->image, result[cols + 7]);
-    }
-
     sqlite3_free_table(result);
     sqlite3_close(db);
     return rows; // returns the number of profiles retrieved
@@ -374,7 +363,67 @@ int delete_profile_by_email(char *email)
         sqlite3_close(db);
         return -1;
     }
+    int rowsAffected = sqlite3_changes(db);
+    if (rowsAffected == 0) {
+        int pid = getpid();
+        fprintf(stderr, "(pid %d) SERVER >>> Failed to find the profile to delete\n", pid);
+        return -1;
+    }
+
+    // Delete the profile image 
+    char image_path[MAX_LENGTH_IMAGE_NAME];
+    sprintf(image_path, "%s%s%s", IMAGES_DIRECTORY, email, IMAGE_EXTENSION);
+
+    if (remove(image_path) != 0) {
+        int pid = getpid();
+        fprintf(stderr, "(pid %d) SERVER >>> Failed to delete profile image\n", pid);
+    }
 
     sqlite3_close(db);
     return 0;
+}
+
+// Get the profile image size from the database
+int get_image_size_by_email(char *email)
+{
+    sqlite3 *db;
+    char *err_msg = NULL;
+    int rows = 0, cols = 0;
+    char **result;
+    char sql[200];
+
+    int rc = sqlite3_open("profiles.db", &db);
+    if (rc != SQLITE_OK)
+    {
+        int pid = getpid();
+        fprintf(stderr, "(pid %d) SERVER >>> Cannot open database: %s\n", pid, sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return -1;
+    }
+
+    sprintf(sql, "SELECT image FROM profiles WHERE email = '%s'", email);
+
+    rc = sqlite3_get_table(db, sql, &result, &rows, &cols, &err_msg);
+    if (rc != SQLITE_OK)
+    {
+        int pid = getpid();
+        fprintf(stderr, "(pid %d) SERVER >>> Failed to execute query: %s\n", pid, sqlite3_errmsg(db));
+        sqlite3_free(err_msg);
+        sqlite3_close(db);
+        return -1;
+    }
+
+    if (rows == 0)
+    {
+        sqlite3_free_table(result);
+        sqlite3_close(db);
+        return -1; // No profile found
+    }
+
+    int image_size = result[cols]? atoi(result[cols]) : 0;
+
+    sqlite3_free_table(result);
+    sqlite3_close(db);
+    
+    return image_size; // returns the image size
 }

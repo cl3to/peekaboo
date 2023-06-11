@@ -1,6 +1,8 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+#include <stdint.h>
+
 // Enumeration of possible actions that can be performed by the user.
 typedef enum OperationCode
 {
@@ -49,12 +51,41 @@ typedef enum StatusCode
     REGISTRATION_FAILED = 403,
     // Status code for failed profile removal
     REMOVAL_FAILED = 404,
+    // Status code for failed in the image recovering process
+    RECOVER_IMAGE_FAILED = 405
 
 } StatusCode;
 
 // Some constants
-#define MAXDATASIZE 64 * 1024   // Max number of bytes we can get at once
-#define PORT "4527"             // Peekaboo port number
-#define SESSION_TOKEN_LENGTH 42 // Session token length
+#define OP_CODE_SIZE 1                                       // Size, in bytes, of the OperationCode
+#define END_MESSAGE_POSITION_SIZE 4                          // Bytes to store the JSON's end in the message
+#define HEADER_SIZE OP_CODE_SIZE + END_MESSAGE_POSITION_SIZE // Header size of the message, in bytes
+#define IMAGES_DIRECTORY "images/"                           // Name of the images directory
+#define UDP_MAX_CONTENT_DATA_SIZE 1024                       // Maximum size of the UDP packet content (without header)
+#define IMAGE_HEADER_SIZE 8                                  // Size of the image's message header
+#define DEFAULT_IMAGE_SIZE 6667                              // Size of the default image, in bytes
+#define IMAGE_EXTENSION ".jpg"                               // The extension of the accepted images
+#define MAX_LENGTH_IMAGE_NAME 111                            // 7("images/")+100(max email size)+4(".jpg")
+#define MAXDATASIZE 64 * 1024                                // Max number of bytes we can get at once
+#define PORT "4527"                                          // Peekaboo port number
+#define SESSION_TOKEN_LENGTH 42                              // Session token length
+#define MAX_SENT_PACKETS 256                                 // Max number of packets that can be sent in a single request
+#define MAX_IMAGE_SIZE 250 * 1024                            // Max size of an image in bytes (250KB)
+#define DEFAULT_IMAGE "default"                              // Name of the default image used for profiles without images
+#define TCP_FLAG "--tcp"                                     // Flag to user server and client in TCP mode
+#define HELP_FLAG "--help"                                   // Flag to acess the help info of server and client
+
+typedef struct request
+{
+    OperationCode operation_code;
+    char *data;
+    int data_size;
+} Request;
+
+typedef struct response
+{
+    uint8_t *data;
+    int data_size;
+} Response;
 
 #endif

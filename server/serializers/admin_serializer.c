@@ -99,29 +99,36 @@ char *validate_password(char *password)
 }
 
 // Build  a admin response in json format
-char *_make_admin_response(StatusCode status_code, char *session_token)
+response_stream *_make_admin_response(StatusCode status_code, char *session_token)
 {
-  char admin_response[BUFFER_SIZE];
+  char response_msg[BUFFER_SIZE];
   if (session_token == NULL)
   {
     sprintf(
-        admin_response,
+        response_msg,
         "{\"status\":%d}",
         status_code);
   }
   else
   {
     sprintf(
-        admin_response,
+        response_msg,
         "{\"status\":%d,\"session_token\":\"%s\"}",
         status_code,
         session_token);
   }
-  return strdup(admin_response);
+
+  response_stream *admin_response = (response_stream *)malloc(sizeof(response_stream));
+  admin_response->data = strdup(response_msg);
+  admin_response->data_size = strlen(response_msg);
+  admin_response->is_image = 0;
+  admin_response->next = NULL;
+
+  return admin_response;
 }
 
 // Login to the system's administrative area
-char *login_with_password(char *password)
+response_stream *login_with_password(char *password)
 {
   char *new_session_token = validate_password(password);
 
@@ -134,7 +141,7 @@ char *login_with_password(char *password)
 }
 
 // Logout from the system's administrative area
-char *logout(char *session_token)
+response_stream *logout(char *session_token)
 {
   if (validate_session_token(session_token) == 0)
   {
@@ -144,8 +151,43 @@ char *logout(char *session_token)
   return _make_admin_response(INVALID_SESSION_TOKEN, NULL);
 }
 
+// Save a given image in bin/images using email as name
+// Return 1 for success
+// Return -1 for failure
+int _save_profile_image(char *email, char *image, int image_size)
+{
+  // Process ID for prints log of the server
+  int pid = getpid();
+
+  // Define the image path and name
+  char filepath[MAX_LENGTH_IMAGE_NAME] = IMAGES_DIRECTORY;
+  strcat(filepath, email);
+  strcat(filepath, IMAGE_EXTENSION);
+
+  // Create or uptade the image file
+  FILE *fp_new = fopen(filepath, "wb");
+  if (fp_new == NULL)
+  {
+    printf("(pid %d) SERVER >>> Error opening file for save imagem\n", pid);
+    return -1;
+  }
+
+  // write image data to the file
+  int bytes_written = fwrite(image, sizeof(char), image_size, fp_new);
+  if (bytes_written != image_size)
+  {
+    printf("(pid %d) SERVER >>> Error writing image data to file\n", pid);
+    return -1;
+  }
+
+  // close file
+  fclose(fp_new);
+
+  return 1;
+}
+
 // Create a new profile
-char *create_new_profile(char *session_token, char *email, char *name, char *last_name, char *city, char *course, int year_of_degree, char *skills)
+response_stream *create_new_profile(char *session_token, char *email, char *name, char *last_name, char *city, char *course, int year_of_degree, char *skills, char *image, int image_size)
 {
   // Check given perfil parameters
   if (
@@ -155,6 +197,8 @@ char *create_new_profile(char *session_token, char *email, char *name, char *las
       course == NULL ||
       year_of_degree <= 0 ||
       skills == NULL ||
+      image == NULL ||
+      image_size <= 0 ||
       check_email_format(email) != 0)
   {
     return _make_admin_response(REGISTRATION_FAILED, NULL);
@@ -162,12 +206,19 @@ char *create_new_profile(char *session_token, char *email, char *name, char *las
 
   if (validate_session_token(session_token) == 0)
   {
-
     Profile *profile = new_profile(
-        email, name, last_name, city, course, year_of_degree, skills);
+        email, name, last_name, city, course, year_of_degree, skills, should_use_tcp == 1? 0 : image_size);
 
+    // Save the profile data and image(in UDP connection) and check that it was successfully
     if (profile == NULL || store_profile(profile) < 0)
     {
+      return _make_admin_response(REGISTRATION_FAILED, NULL);
+    }
+    // Try add given image in UDP connection
+    if (should_use_tcp == 0 && _save_profile_image(email, image, image_size) < 0)
+    {
+      // Removes email or image in case of error to maintain consistency
+      delete_profile_by_email(email);
       return _make_admin_response(REGISTRATION_FAILED, NULL);
     }
     return _make_admin_response(SUCCESS, NULL);
@@ -176,7 +227,7 @@ char *create_new_profile(char *session_token, char *email, char *name, char *las
 }
 
 // Remove a profile filter from email
-char *remove_profile_by_email(char *session_token, char *email)
+response_stream *remove_profile_by_email(char *session_token, char *email)
 {
   // Check given email address
   if (check_email_format(email) != 0)

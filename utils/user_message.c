@@ -13,13 +13,11 @@ char *_make_complete_profile(struct profile *profile)
                                        "\"city\":\"%s\","
                                        "\"course\":\"%s\","
                                        "\"year_of_degree\":%d,"
-                                       "\"skills\":\"%s\","
-                                       "\"image\":\"%s\""
+                                       "\"skills\":\"%s\""
                                        "}",
              profile->email, profile->name, profile->last_name,
              profile->city, profile->course,
-             profile->year_of_degree, profile->skills,
-             profile->image);
+             profile->year_of_degree, profile->skills);
 
     return strdup(buffer);
 }

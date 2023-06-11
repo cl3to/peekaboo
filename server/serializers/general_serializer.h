@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <netinet/in.h>
 
 #include "../../lib/cJSON/cJSON.h"
 
@@ -12,7 +13,7 @@
 #include "user_serializer.h"
 
 // Serializer to make json parsing and choice the correct serializer function
-// Returns a response with a json string
-char *general_serializer(Profile *profiles, char *request_body);
+// Returns a response_stream with the response
+response_stream *general_serializer(Profile *profiles, char *request_body);
 
 #endif

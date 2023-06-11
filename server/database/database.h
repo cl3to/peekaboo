@@ -9,6 +9,7 @@
 #include "../../lib/sqlite3/sqlite3.h"
 
 #include "../../model/profile.h"
+#include "../../utils/constants.h"
 
 // Store the profile in the database using sqlite3
 // Returns 0 if the profile was stored successfully
@@ -47,5 +48,11 @@ int get_profile_by_email(Profile *profile, char *email);
 // Returns 0 if the profile was deleted successfully
 // Returns -1 if the profile was not deleted
 int delete_profile_by_email(char *email);
+
+// Get the image size of the given email's profile using sqlite3
+// Returns the profile's image size were retrieved successfully
+// Returns 0 if the profile exists but haven't image
+// Returns -1 if error or profile not exists
+int get_image_size_by_email(char *email);
 
 #endif

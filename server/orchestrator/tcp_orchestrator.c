@@ -1,103 +1,9 @@
-#include "orchestrator.h"
-
-// Collects any terminated child processes to prevent them from becoming zombies
-void sigchld_handler(int s)
-{
-    // waitpid() might overwrite errno, so we save and restore it:
-    int saved_errno = errno;
-
-    // Collect any terminated child processes using waitpid() with WNOHANG option
-    while (waitpid(-1, NULL, WNOHANG) > 0)
-        ;
-
-    errno = saved_errno;
-}
-
-// Get sockaddr, IPv4 or IPv6:
-void *get_in_addr(struct sockaddr *sa)
-{
-    if (sa->sa_family == AF_INET)
-    {
-        return &(((struct sockaddr_in *)sa)->sin_addr);
-    }
-
-    return &(((struct sockaddr_in6 *)sa)->sin6_addr);
-}
-
-// Setup socket for connection
-int setup_socket(struct addrinfo *servinfo)
-{
-    int sockfd;
-    struct addrinfo *p;
-    int yes = 1;
-
-    // Loop through all the results and bind to the first we can
-    for (p = servinfo; p != NULL; p = p->ai_next)
-    {
-        // Create a new socket
-        if ((sockfd = socket(p->ai_family, p->ai_socktype,
-                             p->ai_protocol)) == -1)
-        {
-            perror("server: socket");
-            continue;
-        }
-
-        // Allow the socket to reuse the address
-        if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes,
-                       sizeof(int)) == -1)
-        {
-            perror("setsockopt");
-            return 1;
-        }
-
-        // Bind the socket to the specified address and port number
-        if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1)
-        {
-            // if the bind fails, close the socket and print an error message
-            close(sockfd);
-            perror("server: bind");
-            continue;
-        }
-
-        // If we successfully bind to an address, break out of the loop
-        break;
-    }
-
-    // Retunr 1 if the bind failed
-    if (p == NULL)
-    {
-        fprintf(stderr, "server: failed to bind\n");
-        return 1;
-    }
-
-    // Return the socket file descriptor
-    return sockfd;
-}
-
-// Create a shared memory segment
-int create_shared_memory_buffer()
-{
-    int shmid = shmget(IPC_PRIVATE, SESSION_TOKEN_LENGTH + 1, IPC_CREAT | 0666);
-
-    if (shmid < 0)
-    {
-        perror("Error creating shared memory segment");
-        return -1;
-    }
-
-    // Assign the shared memory segment to expected_session_token global variable
-    expected_session_token = (char *)shmat(shmid, NULL, 0);
-
-    if (expected_session_token == (char *)-1)
-    {
-        perror("Error assigning shared memory segment to variable");
-        return -1;
-    }
-    return 0;
-}
+#include "tcp_orchestrator.h"
 
 // Sent all data in more than one dataframe if necessary
-int send_all_data(int s, char *buf, int *len)
+// Returns 0 if all data was sent
+// Returns -1 on failure
+int _send_all_data(int s, char *buf, int *len)
 {
     int total = 0;        // how many bytes we've sent
     int bytesleft = *len; // how many we have left to send
@@ -120,12 +26,14 @@ int send_all_data(int s, char *buf, int *len)
 }
 
 // Handle the connection with the client
-void handle_client_requests(int new_fd)
+// Return is void
+void _handle_tcp_client_requests(int new_fd)
 {
     // Create profiles variables
     // The BUFFER_SIZE limit the maximum number of profiles in the system
     const int BUFFER_SIZE = sizeof(Profile) * 64;
     Profile *profiles = (Profile *)malloc(BUFFER_SIZE);
+    response_stream *stream_response;
 
     // Create messages variables
     // The MAXDATASIZE limit the maximum number of bytes we can get at once
@@ -168,14 +76,22 @@ void handle_client_requests(int new_fd)
         printf("(pid %d) SERVER >>> Receive request message: '%s'\n", pid, request);
 
         // Handle request from client using serializers
-        response = general_serializer(profiles, request);
-        response_len = strlen(response);
+        /*
+        At first only the image download operation really needs the use of the connected list,
+        how this operation was not implemented for the TCP connection all the contents of
+        the response of operations should be on the first node of the list.
+        Then the answer accesses this pointer directly.
+        */
+        // TODO: improve the send function and use the linked list correctly
+        stream_response = general_serializer(profiles, request);
+        response = stream_response->data;
+        response_len = stream_response->data_size;
 
         printf("(pid %d) SERVER >>> Sending response with %d bytes\n", pid, response_len);
         printf("(pid %d) SERVER >>> Sending response message: '%s'\n", pid, response);
 
         // Send response message
-        if (send_all_data(new_fd, response, &response_len) == -1)
+        if (_send_all_data(new_fd, response, &response_len) == -1)
         {
             printf("(pid %d) SERVER >>> ", pid);
             perror("sendall");
@@ -184,7 +100,7 @@ void handle_client_requests(int new_fd)
     }
 }
 
-int connection_loop(void)
+int tcp_connection_loop(void)
 {
     // Define socket variables
     int sockfd, new_fd; // listen on sock_fd, new connection on new_fd
@@ -194,6 +110,8 @@ int connection_loop(void)
     struct sigaction sa;
     char s[INET6_ADDRSTRLEN];
     int rv;
+    // Process ID for prints log of the server
+    int pid = getpid();
 
     // Define socket parameters
     memset(&hints, 0, sizeof hints);
@@ -226,7 +144,7 @@ int connection_loop(void)
         return 1;
     }
 
-    printf("server: waiting for connections...\n");
+    printf("(pid %d) SERVER >>> waiting for connections...\n", pid);
 
     // Create the shared memory segment to store password hash
     if (create_shared_memory_buffer() == -1)
@@ -249,7 +167,7 @@ int connection_loop(void)
         inet_ntop(their_addr.ss_family,
                   get_in_addr((struct sockaddr *)&their_addr),
                   s, sizeof s);
-        printf("server: got connection from %s\n", s);
+        printf("(pid %d) SERVER >>> got connection from %s\n", pid, s);
 
         if (!fork())
         {
@@ -257,7 +175,7 @@ int connection_loop(void)
             close(sockfd); // child doesn't need the listener
 
             // handle with this connection in this process
-            handle_client_requests(new_fd);
+            _handle_tcp_client_requests(new_fd);
 
             // close the socker with the client
             close(new_fd);
