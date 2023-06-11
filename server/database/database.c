@@ -363,6 +363,12 @@ int delete_profile_by_email(char *email)
         sqlite3_close(db);
         return -1;
     }
+    int rowsAffected = sqlite3_changes(db);
+    if (rowsAffected == 0) {
+        int pid = getpid();
+        fprintf(stderr, "(pid %d) SERVER >>> Failed to find the profile to delete\n", pid);
+        return -1;
+    }
 
     // Delete the profile image 
     char image_path[MAX_LENGTH_IMAGE_NAME];
